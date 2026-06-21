@@ -12,6 +12,8 @@ module Tasks
     end
 
     def call
+      return ExecuteOnboardingDemo.call(task: @task, run: @run) if onboarding_demo?
+
       return if @task.status != "active"
 
       @run ||= @task.task_runs.create!(status: "pending")
@@ -205,6 +207,10 @@ module Tasks
 
     def failure_threshold
       ENV.fetch("MEERKAT_FAILURE_THRESHOLD", 5).to_i
+    end
+
+    def onboarding_demo?
+      @task.metadata.is_a?(Hash) && @task.metadata["onboarding_demo"]
     end
   end
 end

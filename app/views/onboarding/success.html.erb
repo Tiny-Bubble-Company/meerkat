@@ -6,7 +6,12 @@
   <% if succeeded %>
     Task #<%= @task.id %> completed and your webhook was delivered. You're ready to use the API.
   <% else %>
-    Task #<%= @task.id %> finished with status <code><%= @run.status %></code>. You can still explore the docs and retry via the API.
+    Task #<%= @task.id %> finished with status <code><%= @run.status %></code>.
+    <% if @run.error.present? && @run.error.match?(/provider|api key|model/i) %>
+      Check your LLM key and model under Docs → LLM Provider, then retry via the API.
+    <% else %>
+      You can still explore the docs and retry via the API.
+    <% end %>
   <% end %>
 </p>
 
@@ -23,7 +28,7 @@
 
 <% if @webhook_delivery.present? %>
   <div class="webhook-inbox webhook-inbox--received webhook-inbox--success">
-    <p class="panel-label">Webhook delivered to your test inbox</p>
+    <p class="panel-label"><%= succeeded ? "Webhook delivered to your test inbox" : "Webhook payload received" %></p>
     <pre class="webhook-payload"><%= JSON.pretty_generate(@webhook_delivery.payload) %></pre>
   </div>
 <% end %>

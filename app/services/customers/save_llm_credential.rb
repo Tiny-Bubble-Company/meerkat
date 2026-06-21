@@ -7,7 +7,7 @@ module Customers
     PROVIDERS = %w[anthropic openai openrouter grok].freeze
 
     DEFAULT_MODELS = {
-      "anthropic"   => "claude-sonnet-4-20250514",
+      "anthropic"   => "claude-sonnet-4-6",
       "openai"      => "gpt-4o-mini",
       "openrouter"  => "meta-llama/llama-3.3-70b-instruct:free",
       "grok"        => "grok-3-mini"

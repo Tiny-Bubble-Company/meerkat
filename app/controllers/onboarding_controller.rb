@@ -31,6 +31,12 @@ class OnboardingController < ApplicationController
   end
 
   def save_llm_provider
+    Customers::ValidateLlmCredential.call(
+      provider: llm_params[:provider],
+      api_key: llm_params[:api_key],
+      model: llm_params[:model]
+    ) if llm_params[:api_key].present?
+
     Customers::SaveLlmCredential.call(
       customer: current_customer,
       provider: llm_params[:provider],
@@ -40,7 +46,7 @@ class OnboardingController < ApplicationController
 
     advance_to!("create-task")
     redirect_to onboarding_step_path("create-task"), notice: "LLM provider connected."
-  rescue Customers::SaveLlmCredential::Error => e
+  rescue Customers::SaveLlmCredential::Error, Customers::ValidateLlmCredential::Error => e
     flash[:alert] = e.message
     redirect_to onboarding_step_path("llm-provider")
   end
@@ -54,6 +60,7 @@ class OnboardingController < ApplicationController
       description: task_params[:description],
       input_params: { url: task_params[:url] },
       output_webhook: webhook_url,
+      metadata: { onboarding_demo: true },
       run_immediately: false
     )
 
@@ -243,7 +250,11 @@ class OnboardingController < ApplicationController
     raise Tasks::Run::Error, "Task is archived" if task.status == "archived"
     raise Tasks::Run::Error, "Task is not active" unless task.active?
     raise Tasks::Run::Error, "A run is already in progress" if task.task_runs.exists?(status: "running")
-    raise Tasks::Run::Error, "Connect an LLM provider before running tasks" unless task.customer.llm_configured? || development_platform_llm?
+    raise Tasks::Run::Error, "Connect an LLM provider before running tasks" unless task.customer.llm_configured? || development_platform_llm? || onboarding_demo_task?(task)
+  end
+
+  def onboarding_demo_task?(task)
+    task.metadata.is_a?(Hash) && task.metadata["onboarding_demo"]
   end
 
   def development_platform_llm?

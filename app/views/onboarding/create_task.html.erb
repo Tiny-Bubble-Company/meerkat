@@ -1,7 +1,7 @@
 <% content_for :title, "Create task — Meerkat" %>
 
 <h1>Create your first task</h1>
-<p class="lede">This is the same call as <code>POST /api/v1/tasks</code>. We'll use a one-off task for a quick first run.</p>
+<p class="lede">We'll fetch the title from <strong>meerkatagents.com</strong> and POST the result to your built-in test webhook inbox — no external setup needed.</p>
 
 <div class="endpoint-row">
   <span class="method method-post">POST</span>
@@ -13,7 +13,7 @@
     "task_type": "one_off",
     "description": "<%= @sample_payload[:description] %>",
     "input_params": { "url": "<%= @sample_payload[:input_params][:url] %>" },
-    "output_webhook": "https://your-app.com/hook"
+    "output_webhook": "<%= @default_webhook_url %>"
   }
 }</code></pre>
 
@@ -24,13 +24,13 @@
   </div>
   <div class="field">
     <%= f.label :url, "URL to fetch" %>
-    <%= f.text_field :url, value: @sample_payload[:input_params][:url], required: true, placeholder: "https://example.com" %>
+    <%= f.text_field :url, value: @sample_payload[:input_params][:url], required: true, placeholder: "https://meerkatagents.com/" %>
     <p class="field-hint">Passed as <code>input_params.url</code></p>
   </div>
   <div class="field">
     <%= f.label :output_webhook, "Webhook URL" %>
-    <%= f.text_field :output_webhook, required: true, placeholder: "https://webhook.site/your-id" %>
-    <p class="field-hint">Required — Meerkat POSTs results here</p>
+    <%= f.text_field :output_webhook, value: @default_webhook_url, required: true, class: "form-input form-input-readonly" %>
+    <p class="field-hint">Meerkat Cloud test inbox — you'll see the JSON payload arrive live on the next screen.</p>
   </div>
   <div class="actions">
     <%= f.submit "Create task", class: "btn btn-primary" %>

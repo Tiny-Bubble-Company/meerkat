@@ -6,6 +6,7 @@ class Customer < ApplicationRecord
 
   has_many :api_keys, dependent: :destroy
   has_many :tasks, dependent: :destroy
+  has_many :onboarding_webhook_deliveries, dependent: :destroy
 
   validates :email, presence: true, uniqueness: { case_sensitive: false },
     format: { with: URI::MailTo::EMAIL_REGEXP }

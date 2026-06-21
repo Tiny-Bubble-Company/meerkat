@@ -25,6 +25,9 @@ Rails.application.routes.draw do
   post "signup", to: "signup#create"
   delete "logout", to: "signup#destroy"
 
+  post "onboarding/inbox", to: "onboarding_inbox#create", as: :onboarding_inbox
+  get "onboarding/inbox/status", to: "onboarding_inbox#status", as: :onboarding_inbox_status
+
   get "onboarding/run-status", to: "onboarding#run_status", as: :onboarding_run_status
   post "onboarding/process-run", to: "onboarding#process_run", as: :onboarding_process_run
   post "onboarding/acknowledge-key", to: "onboarding#acknowledge_key", as: :onboarding_acknowledge_key

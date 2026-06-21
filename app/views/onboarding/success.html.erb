@@ -4,7 +4,7 @@
 <h1><%= succeeded ? "First run succeeded" : "First run finished" %></h1>
 <p class="lede">
   <% if succeeded %>
-    Task #<%= @task.id %> completed. You're ready to use the API.
+    Task #<%= @task.id %> completed and your webhook was delivered. You're ready to use the API.
   <% else %>
     Task #<%= @task.id %> finished with status <code><%= @run.status %></code>. You can still explore the docs and retry via the API.
   <% end %>
@@ -14,12 +14,19 @@
   <div class="success-icon"><%= succeeded ? "✓" : "!" %></div>
   <% if @run.error.present? %>
     <p class="run-status-text"><%= @run.error %></p>
-  <% elsif run_summary = ( @run.structured_output.is_a?(Hash) ? @run.structured_output["summary"] : @run.output.to_s.presence ) %>
+  <% elsif run_summary = (@run.structured_output.is_a?(Hash) ? @run.structured_output["summary"] : @run.output.to_s.presence) %>
     <p class="run-status-text"><%= run_summary.to_s.truncate(300) %></p>
   <% else %>
     <p class="run-status-text">Run #<%= @run.id %> · <%= @run.status %></p>
   <% end %>
 </div>
+
+<% if @webhook_delivery.present? %>
+  <div class="webhook-inbox webhook-inbox--received webhook-inbox--success">
+    <p class="panel-label">Webhook delivered to your test inbox</p>
+    <pre class="webhook-payload"><%= JSON.pretty_generate(@webhook_delivery.payload) %></pre>
+  </div>
+<% end %>
 
 <div class="actions">
   <%= button_to "Explore documentation", onboarding_complete_path, method: :post, class: "btn btn-primary" %>

@@ -122,7 +122,94 @@
 
       .waiting-panel {
         text-align: center;
-        padding: 3rem 1rem;
+        padding: 2rem 1.25rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+      }
+
+      .waiting-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem;
+        margin-top: 1.5rem;
+      }
+
+      @media (max-width: 640px) {
+        .waiting-grid { grid-template-columns: 1fr; }
+      }
+
+      .panel-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        margin-bottom: 1rem;
+        text-align: left;
+      }
+
+      .waiting-panel--run .panel-label,
+      .waiting-panel--run .run-status-text { text-align: center; }
+      .waiting-panel--run .panel-label { margin-bottom: 0.5rem; }
+
+      .webhook-inbox {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1.25rem;
+        min-height: 220px;
+      }
+
+      .webhook-inbox--received {
+        border-color: var(--accent-dim);
+        box-shadow: 0 0 0 1px rgba(251, 191, 36, 0.12);
+      }
+
+      .webhook-inbox--success { margin: 1.5rem 0; }
+
+      .webhook-inbox-waiting {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+        gap: 1rem;
+      }
+
+      .webhook-pulse {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--accent);
+        animation: webhook-pulse 1.4s ease-in-out infinite;
+      }
+
+      @keyframes webhook-pulse {
+        0%, 100% { opacity: 0.35; transform: scale(0.85); }
+        50% { opacity: 1; transform: scale(1.15); }
+      }
+
+      .webhook-payload {
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1rem;
+        font-family: var(--mono);
+        font-size: 0.8125rem;
+        line-height: 1.55;
+        overflow-x: auto;
+        max-height: 320px;
+        margin: 0;
+        text-align: left;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      .form-input-readonly {
+        opacity: 0.85;
+        cursor: default;
+        font-family: var(--mono);
+        font-size: 0.875rem;
       }
 
       .spinner {

@@ -2,37 +2,96 @@
 
 <div id="waiting-state">
   <h1>Running your task</h1>
-  <p class="lede">Hang tight — the agent is working. This usually takes a few seconds.</p>
+  <p class="lede">The agent is fetching <code>meerkatagents.com</code>. Watch the test webhook inbox — results appear the moment they're delivered.</p>
 
-  <div class="waiting-panel">
-    <div class="spinner"></div>
-    <p class="run-status-text" id="run-status-label">Status: <%= @run.status %></p>
+  <div class="waiting-grid">
+    <div class="waiting-panel waiting-panel--run">
+      <p class="panel-label">Agent run</p>
+      <div class="spinner"></div>
+      <p class="run-status-text" id="run-status-label">Status: <%= @run.status %></p>
+    </div>
+
+    <div class="webhook-inbox" id="webhook-inbox">
+      <p class="panel-label">Test webhook inbox</p>
+      <div class="webhook-inbox-waiting" id="webhook-inbox-waiting">
+        <div class="webhook-pulse"></div>
+        <p class="run-status-text" id="webhook-inbox-status">Waiting for webhook delivery…</p>
+      </div>
+      <pre class="webhook-payload hidden" id="webhook-payload"></pre>
+    </div>
   </div>
 </div>
 
 <script>
   (function () {
     const statusUrl = "<%= onboarding_run_status_path %>";
+    const inboxUrl = "<%= onboarding_inbox_status_path %>";
     const processUrl = "<%= onboarding_process_run_path %>";
     const successUrl = "<%= onboarding_step_path("success") %>";
     const csrf = document.querySelector('meta[name="csrf-token"]').content;
 
-    async function poll() {
+    let webhookShown = false;
+    let runFinished = false;
+
+    function showWebhook(payload) {
+      if (webhookShown) return;
+      webhookShown = true;
+
+      const waiting = document.getElementById("webhook-inbox-waiting");
+      const pre = document.getElementById("webhook-payload");
+      const inbox = document.getElementById("webhook-inbox");
+      const status = document.getElementById("webhook-inbox-status");
+
+      if (waiting) waiting.classList.add("hidden");
+      if (pre) {
+        pre.textContent = JSON.stringify(payload, null, 2);
+        pre.classList.remove("hidden");
+      }
+      if (inbox) inbox.classList.add("webhook-inbox--received");
+      if (status) status.textContent = "Webhook received!";
+    }
+
+    async function pollInbox() {
+      try {
+        const response = await fetch(inboxUrl, { headers: { "Accept": "application/json" } });
+        if (!response.ok) return;
+
+        const data = await response.json();
+        if (data.received && data.payload) showWebhook(data.payload);
+      } catch (_) {}
+    }
+
+    async function pollRun() {
       const response = await fetch(statusUrl, { headers: { "Accept": "application/json" } });
-      if (!response.ok) return setTimeout(poll, 1200);
+      if (!response.ok) return schedulePoll();
 
       const data = await response.json();
       const label = document.getElementById("run-status-label");
       if (label) label.textContent = "Status: " + data.status;
 
-      if (!data.finished) return setTimeout(poll, 1200);
+      if (data.webhook_received && data.webhook_payload) showWebhook(data.webhook_payload);
 
-      setTimeout(() => { window.location.href = successUrl; }, 1000);
+      if (data.finished) {
+        runFinished = true;
+        return setTimeout(() => { window.location.href = successUrl; }, webhookShown ? 2500 : 1000);
+      }
+
+      schedulePoll();
+    }
+
+    function schedulePoll() {
+      setTimeout(() => {
+        pollInbox();
+        pollRun();
+      }, 1200);
     }
 
     fetch(processUrl, {
       method: "POST",
       headers: { "Accept": "application/json", "X-CSRF-Token": csrf }
-    }).finally(poll);
+    }).finally(() => {
+      pollInbox();
+      pollRun();
+    });
   })();
 </script>

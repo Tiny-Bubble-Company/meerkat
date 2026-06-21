@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_21_150000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_21_180000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -48,6 +48,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_21_150000) do
     t.datetime "onboarding_completed_at"
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_customers_on_email", unique: true
+  end
+
+  create_table "onboarding_webhook_deliveries", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "customer_id", null: false
+    t.jsonb "payload", default: {}, null: false
+    t.bigint "task_run_id"
+    t.datetime "updated_at", null: false
+    t.index ["customer_id", "created_at"], name: "idx_on_customer_id_created_at_61f0edbaac"
+    t.index ["customer_id", "task_run_id"], name: "idx_on_customer_id_task_run_id_c8e847ad84"
+    t.index ["customer_id"], name: "index_onboarding_webhook_deliveries_on_customer_id"
   end
 
   create_table "task_events", force: :cascade do |t|
@@ -112,6 +123,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_21_150000) do
   end
 
   add_foreign_key "api_keys", "customers"
+  add_foreign_key "onboarding_webhook_deliveries", "customers"
   add_foreign_key "task_events", "task_runs"
   add_foreign_key "task_events", "tasks"
   add_foreign_key "task_runs", "tasks"

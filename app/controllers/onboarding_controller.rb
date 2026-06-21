@@ -44,18 +44,14 @@ class OnboardingController < ApplicationController
   end
 
   def create_task
-    if task_params[:output_webhook].blank?
-      flash[:alert] = "Webhook URL is required."
-      redirect_to onboarding_step_path("create-task")
-      return
-    end
+    webhook_url = task_params[:output_webhook].presence || onboarding_test_webhook_url
 
     task = Tasks::Create.call(
       customer: current_customer,
       task_type: "one_off",
       description: task_params[:description],
       input_params: { url: task_params[:url] },
-      output_webhook: task_params[:output_webhook].presence,
+      output_webhook: webhook_url,
       run_immediately: false
     )
 
@@ -104,7 +100,9 @@ class OnboardingController < ApplicationController
       finished: run.status.in?(%w[succeeded failed]),
       succeeded: run.status == "succeeded",
       error: run.error,
-      summary: run_summary(run)
+      summary: run_summary(run),
+      webhook_received: latest_onboarding_webhook_delivery.present?,
+      webhook_payload: latest_onboarding_webhook_delivery&.payload
     }
   end
 
@@ -172,7 +170,8 @@ class OnboardingController < ApplicationController
       @default_models = Customer::DEFAULT_LLM_MODELS
       @llm_configured = current_customer.llm_configured?
     when "create-task"
-      @sample_payload = onboarding_task_payload
+      @sample_payload = onboarding_task_sample_payload
+      @default_webhook_url = onboarding_test_webhook_url
     when "run-task"
       @task = onboarding_task!
     when "waiting"
@@ -180,6 +179,7 @@ class OnboardingController < ApplicationController
     when "success"
       @run = onboarding_run
       @task = onboarding_task!
+      @webhook_delivery = latest_onboarding_webhook_delivery
     end
   end
 
@@ -201,12 +201,22 @@ class OnboardingController < ApplicationController
     params.require(:llm).permit(:provider, :api_key, :model)
   end
 
-  def onboarding_task_payload
-    {
-      task_type: "one_off",
-      description: "Fetch the page title from a URL",
-      input_params: { url: "https://example.com" }
-    }
+  def latest_onboarding_webhook_delivery
+    run_id = session[:onboarding_run_id]
+    delivery = OnboardingWebhookDelivery.latest_for_run(
+      customer: current_customer,
+      task_run_id: run_id
+    ).first
+
+    return delivery if delivery.present?
+
+    run = onboarding_run
+    return nil unless run
+
+    current_customer.onboarding_webhook_deliveries
+      .where("created_at >= ?", run.created_at)
+      .recent
+      .first
   end
 
   def run_summary(run)

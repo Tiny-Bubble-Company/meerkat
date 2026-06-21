@@ -1,0 +1,15 @@
+<%# locals: sections (array of { id:, label: }) %>
+<nav class="docs-page-index-nav" data-docs-page-index aria-label="On this page">
+  <p class="docs-page-index-heading">On this page</p>
+  <ul class="docs-page-index-list">
+    <% sections.each do |section| %>
+      <li>
+        <a
+          href="#<%= section[:id] %>"
+          class="docs-page-index-link"
+          data-docs-page-index-link="<%= section[:id] %>"
+        ><%= section[:label] %></a>
+      </li>
+    <% end %>
+  </ul>
+</nav>

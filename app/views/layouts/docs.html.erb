@@ -89,8 +89,71 @@
       .nav-link.active { color: var(--accent); border-left-color: var(--accent); background: var(--surface-2); }
 
       .docs-content {
+        flex: 1;
+        min-width: 0;
         padding: 2.5rem 3rem 4rem;
         max-width: 920px;
+      }
+
+      .docs-page {
+        display: flex;
+        flex: 1;
+        align-items: flex-start;
+        min-width: 0;
+      }
+
+      .docs-page-index {
+        width: 220px;
+        flex-shrink: 0;
+        padding: 2.5rem 2rem 4rem 0;
+        position: sticky;
+        top: 3.75rem;
+        align-self: flex-start;
+        max-height: calc(100vh - 4.5rem);
+        overflow-y: auto;
+      }
+
+      .docs-page-index-heading {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        margin: 0 0 0.85rem;
+      }
+
+      .docs-page-index-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        border-left: 1px solid var(--border);
+      }
+
+      .docs-page-index-link {
+        display: block;
+        padding: 0.35rem 0 0.35rem 0.85rem;
+        margin-left: -1px;
+        border-left: 2px solid transparent;
+        color: var(--muted);
+        font-size: 0.875rem;
+        line-height: 1.4;
+        text-decoration: none;
+        transition: color 0.15s ease, border-color 0.15s ease;
+      }
+
+      .docs-page-index-link:hover {
+        color: var(--text);
+        text-decoration: none;
+      }
+
+      .docs-page-index-link.is-active {
+        color: var(--accent);
+        border-left-color: var(--accent);
+        font-weight: 500;
+      }
+
+      @media (max-width: 1180px) {
+        .docs-page-index { display: none; }
       }
 
       @media (max-width: 768px) {
@@ -149,49 +212,11 @@
       .method-patch { background: #422006; color: #fcd34d; }
       .method-delete { background: #450a0a; color: #fca5a5; }
 
-      .api-toc {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 1.25rem 1.5rem;
-        margin-bottom: 2.5rem;
-      }
-
-      .api-toc-heading {
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--muted);
-        margin: 0 0 0.75rem;
-        font-weight: 600;
-      }
-
-      .api-toc ul {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        columns: 2;
-        column-gap: 2rem;
-      }
-
-      @media (max-width: 640px) {
-        .api-toc ul { columns: 1; }
-      }
-
-      .api-toc li { margin: 0.35rem 0; }
-
-      .api-toc a {
-        color: var(--text);
-        text-decoration: none;
-        font-size: 0.9375rem;
-      }
-
-      .api-toc a:hover { color: var(--accent); }
-
       .api-endpoint,
       .api-object {
         padding: 2rem 0;
         border-top: 1px solid var(--border);
+        scroll-margin-top: 5rem;
       }
 
       .api-endpoint-title {
@@ -344,12 +369,20 @@
           <%= render "shared/user_menu" %>
         </header>
 
-        <main class="docs-content">
-          <% if flash[:notice] %><div class="flash flash-notice"><%= flash[:notice] %></div><% end %>
-          <% if flash[:alert] %><div class="flash flash-alert"><%= flash[:alert] %></div><% end %>
+        <div class="docs-page">
+          <main class="docs-content">
+            <% if flash[:notice] %><div class="flash flash-notice"><%= flash[:notice] %></div><% end %>
+            <% if flash[:alert] %><div class="flash flash-alert"><%= flash[:alert] %></div><% end %>
 
-          <%= yield %>
-        </main>
+            <%= yield %>
+          </main>
+
+          <% if content_for?(:docs_page_index) %>
+            <aside class="docs-page-index">
+              <%= yield :docs_page_index %>
+            </aside>
+          <% end %>
+        </div>
       </div>
     </div>
 
@@ -388,6 +421,50 @@
             setTimeout(() => { btn.textContent = "Copy"; }, 2000);
           });
         });
+
+        var pageIndex = document.querySelector("[data-docs-page-index]");
+        if (pageIndex) {
+          var indexLinks = pageIndex.querySelectorAll("[data-docs-page-index-link]");
+          var sectionIds = Array.from(indexLinks).map(function (link) {
+            return link.getAttribute("data-docs-page-index-link");
+          });
+          var sections = sectionIds.map(function (id) {
+            return document.getElementById(id);
+          }).filter(Boolean);
+
+          function setActiveIndex(id) {
+            indexLinks.forEach(function (link) {
+              link.classList.toggle("is-active", link.getAttribute("data-docs-page-index-link") === id);
+            });
+          }
+
+          indexLinks.forEach(function (link) {
+            link.addEventListener("click", function (e) {
+              e.preventDefault();
+              var id = link.getAttribute("data-docs-page-index-link");
+              var target = document.getElementById(id);
+              if (target) {
+                target.scrollIntoView({ behavior: "smooth", block: "start" });
+                history.replaceState(null, "", "#" + id);
+                setActiveIndex(id);
+              }
+            });
+          });
+
+          if ("IntersectionObserver" in window && sections.length) {
+            var observer = new IntersectionObserver(function (entries) {
+              var visible = entries
+                .filter(function (entry) { return entry.isIntersecting; })
+                .sort(function (a, b) { return b.intersectionRatio - a.intersectionRatio; });
+              if (visible.length) setActiveIndex(visible[0].target.id);
+            }, { rootMargin: "-20% 0px -65% 0px", threshold: [0, 0.25, 0.5, 1] });
+
+            sections.forEach(function (section) { observer.observe(section); });
+          }
+
+          var hash = window.location.hash.replace("#", "");
+          if (hash && sectionIds.indexOf(hash) !== -1) setActiveIndex(hash);
+        }
       })();
     </script>
   </body>

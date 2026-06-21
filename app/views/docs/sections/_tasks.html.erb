@@ -5,23 +5,9 @@
   <%= link_to "Bearer authentication", docs_section_path("authentication") %>.
 </p>
 
-<nav class="api-toc" aria-label="Tasks endpoints">
-  <h2 class="api-toc-heading">Endpoints</h2>
-  <ul>
-    <li><a href="#the-task-object">The Task object</a></li>
-    <li><a href="#list-tasks">List tasks</a></li>
-    <li><a href="#create-task">Create a task</a></li>
-    <li><a href="#retrieve-task">Retrieve a task</a></li>
-    <li><a href="#update-task">Update a task</a></li>
-    <li><a href="#replace-task">Replace a task</a></li>
-    <li><a href="#delete-task">Delete a task</a></li>
-    <li><a href="#run-task">Run a task</a></li>
-    <li><a href="#pause-task">Pause a task</a></li>
-    <li><a href="#resume-task">Resume a task</a></li>
-    <li><a href="#list-runs">List runs</a></li>
-    <li><a href="#list-events">List events</a></li>
-  </ul>
-</nav>
+<% content_for :docs_page_index do %>
+  <%= render "docs/page_index", sections: DocsHelper::TASKS_API_INDEX %>
+<% end %>
 
 <section class="api-object" id="the-task-object">
   <h2 class="api-endpoint-title">The Task object</h2>

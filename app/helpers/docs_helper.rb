@@ -12,6 +12,21 @@ module DocsHelper
     "reference" => { label: "OpenAPI", interactive: false }
   }.freeze
 
+  TASKS_API_INDEX = [
+    { id: "the-task-object", label: "The Task object" },
+    { id: "list-tasks", label: "List tasks" },
+    { id: "create-task", label: "Create a task" },
+    { id: "retrieve-task", label: "Retrieve a task" },
+    { id: "update-task", label: "Update a task" },
+    { id: "replace-task", label: "Replace a task" },
+    { id: "delete-task", label: "Delete a task" },
+    { id: "run-task", label: "Run a task" },
+    { id: "pause-task", label: "Pause a task" },
+    { id: "resume-task", label: "Resume a task" },
+    { id: "list-runs", label: "List runs" },
+    { id: "list-events", label: "List events" }
+  ].freeze
+
   def docs_sections
     DOCS_SECTIONS
   end

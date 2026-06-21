@@ -1,0 +1,30 @@
+<% content_for :title, "Log in — Meerkat" %>
+<% content_for :meta_description, "Log in to Meerkat Cloud to continue onboarding or manage your API keys and tasks." %>
+
+<%= render "marketing/site_nav" %>
+
+<main class="mx-auto max-w-lg px-6 py-20 lg:py-28">
+  <div class="rounded-2xl border border-border bg-card p-8" style="box-shadow: var(--shadow-card)">
+    <p class="font-mono text-[11px] uppercase tracking-[0.3em] text-primary">Welcome back</p>
+    <h1 class="mt-4 font-serif text-4xl tracking-tight">Log in</h1>
+    <p class="mt-3 text-[15px] leading-relaxed text-muted-foreground">
+      Enter the email you signed up with. We'll take you back to your dashboard or onboarding.
+    </p>
+
+    <%= form_with url: login_path, scope: :session, class: "form-stack mt-8" do |f| %>
+      <div class="field">
+        <%= f.label :email, "Email", class: "form-label" %>
+        <%= f.email_field :email, required: true, autofocus: true, placeholder: "you@company.com", autocomplete: "email", class: "form-input" %>
+      </div>
+      <%= f.submit "Continue →", class: "form-submit glow-amber" %>
+    <% end %>
+
+    <p class="mt-6 text-[14px] text-muted-foreground">
+      New to Meerkat?
+      <%= link_to "Sign up free", marketing_signup_path, marketing_signup_link_options(class: "text-primary hover:underline") %>
+      · <%= link_to "Docs", docs_path, class: "text-primary hover:underline" %>
+    </p>
+  </div>
+</main>
+
+<%= render "marketing/footer" %>

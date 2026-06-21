@@ -40,6 +40,14 @@ module MarketingHelper
     end
   end
 
+  def marketing_login_path
+    marketing_site_host? ? cloud_app_url("/login") : login_path
+  end
+
+  def marketing_login_link_options(**html_options)
+    marketing_signup_link_options(**html_options)
+  end
+
   def brand_home_url
     marketing_site_host? ? root_path : meerkat_website_url
   end

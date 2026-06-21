@@ -23,6 +23,8 @@ Rails.application.routes.draw do
 
   get "signup", to: "signup#new"
   post "signup", to: "signup#create"
+  get "login", to: "login#new"
+  post "login", to: "login#create"
   delete "logout", to: "signup#destroy"
 
   post "onboarding/inbox", to: "onboarding_inbox#create", as: :onboarding_inbox

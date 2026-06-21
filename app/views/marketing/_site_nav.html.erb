@@ -43,6 +43,8 @@
     <div class="flex items-center gap-3">
       <% if customer_signed_in? %>
         <%= button_to "Sign out", logout_path, method: :delete, class: "hidden font-mono text-[12px] uppercase tracking-wider text-muted-foreground transition hover:text-foreground sm:inline" %>
+      <% else %>
+        <%= link_to "Log in", marketing_login_path, marketing_login_link_options(class: "hidden font-mono text-[12px] uppercase tracking-wider text-muted-foreground transition hover:text-foreground sm:inline", title: "Log in to Meerkat Cloud") %>
       <% end %>
       <%= link_to marketing_nav_cta_label, marketing_signup_path, marketing_signup_link_options(class: "rounded-md bg-primary px-3.5 py-2 font-mono text-[12px] font-semibold uppercase tracking-wider text-primary-foreground transition hover:brightness-110", title: "Create your Meerkat account") %>
       <button
@@ -83,6 +85,8 @@
         <li><%= link_to "GitHub", github_repo_url, class: "block rounded-md px-2 py-2 font-mono text-[12px] uppercase tracking-wider text-muted-foreground hover:bg-card hover:text-foreground", target: "_blank", rel: "noopener external" %></li>
         <% if customer_signed_in? %>
           <li><%= button_to "Sign out", logout_path, method: :delete, class: "block w-full rounded-md px-2 py-2 text-left font-mono text-[12px] uppercase tracking-wider text-muted-foreground hover:bg-card hover:text-foreground" %></li>
+        <% else %>
+          <li><%= link_to "Log in", marketing_login_path, marketing_login_link_options(class: "block rounded-md px-2 py-2 font-mono text-[12px] uppercase tracking-wider text-muted-foreground hover:bg-card hover:text-foreground") %></li>
         <% end %>
       </ul>
     </div>

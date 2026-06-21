@@ -210,7 +210,10 @@ module Tasks
     end
 
     def onboarding_demo?
-      @task.metadata.is_a?(Hash) && @task.metadata["onboarding_demo"]
+      return true if @task.metadata.is_a?(Hash) && @task.metadata["onboarding_demo"]
+      return false if @task.customer.onboarding_completed?
+
+      @task.one_off? && @task.customer.tasks.one_off.count == 1
     end
   end
 end

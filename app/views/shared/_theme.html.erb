@@ -157,20 +157,82 @@
     flex-wrap: wrap;
   }
 
-  input[type="text"], input[type="email"] {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 0.75rem 1rem;
-    color: var(--text);
-    font-size: 1rem;
-    font-family: var(--sans);
-    min-width: 200px;
+  .field { margin-bottom: 1.25rem; }
+
+  .form-label,
+  .field label {
+    display: block;
+    color: var(--muted);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
   }
 
-  input:focus { outline: 2px solid var(--accent-dim); border-color: var(--accent); }
+  .form-input,
+  .field input[type="text"],
+  .field input[type="email"],
+  .field input[type="password"],
+  .field input[type="url"],
+  .field input[type="search"],
+  .field input[type="tel"],
+  .field input[type="number"],
+  .field select,
+  .field textarea {
+    display: block;
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.8125rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 1rem;
+    line-height: 1.4;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    -webkit-appearance: none;
+    appearance: none;
+  }
 
-  label { display: block; color: var(--muted); font-size: 0.9375rem; margin-bottom: 0.35rem; }
+  .field select {
+    padding-right: 2.5rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23a1a1aa' d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    cursor: pointer;
+  }
+
+  .field textarea { min-height: 6rem; resize: vertical; }
+
+  .form-input::placeholder,
+  .field input::placeholder,
+  .field textarea::placeholder { color: #71717a; opacity: 1; }
+
+  .form-input:focus,
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15);
+    background: var(--surface-2);
+  }
+
+  .form-input:disabled,
+  .field input:disabled,
+  .field select:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .field-hint {
+    color: var(--muted);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin-top: 0.45rem;
+  }
+
+  .form-stack { display: flex; flex-direction: column; gap: 0; }
+  .form-stack .field:last-child { margin-bottom: 0; }
 
   .sidebar-brand,
   .inline-brand {

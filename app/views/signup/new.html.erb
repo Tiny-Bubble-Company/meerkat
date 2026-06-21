@@ -11,26 +11,27 @@
       Get an API key, connect your LLM provider, and register your first task in onboarding.
     </p>
 
-    <%= form_with url: signup_path, scope: :customer, class: "mt-8 space-y-5" do |f| %>
-      <div>
-        <%= f.label :email, "Email", class: "mb-2 block font-mono text-[11px] uppercase tracking-wider text-muted-foreground" %>
-        <%= f.email_field :email, required: true, autofocus: true, placeholder: "you@company.com", class: "w-full rounded-md border border-border bg-background px-4 py-3 font-mono text-sm text-foreground outline-none ring-primary focus:ring-2" %>
+    <%= form_with url: signup_path, scope: :customer, class: "form-stack mt-8" do |f| %>
+      <div class="field">
+        <%= f.label :email, "Email", class: "form-label" %>
+        <%= f.email_field :email, required: true, autofocus: true, placeholder: "you@company.com", class: "form-input" %>
       </div>
-      <div>
-        <%= f.label :name, "Name", class: "mb-2 block font-mono text-[11px] uppercase tracking-wider text-muted-foreground" %>
-        <%= f.text_field :name, placeholder: "Your name", class: "w-full rounded-md border border-border bg-background px-4 py-3 font-mono text-sm text-foreground outline-none ring-primary focus:ring-2" %>
+      <div class="field">
+        <%= f.label :name, "Name", class: "form-label" %>
+        <%= f.text_field :name, placeholder: "Your name", class: "form-input" %>
       </div>
-      <div>
-        <%= f.label :company, "Company (optional)", class: "mb-2 block font-mono text-[11px] uppercase tracking-wider text-muted-foreground" %>
-        <%= f.text_field :company, placeholder: "Acme Inc.", class: "w-full rounded-md border border-border bg-background px-4 py-3 font-mono text-sm text-foreground outline-none ring-primary focus:ring-2" %>
+      <div class="field">
+        <%= f.label :company, "Company (optional)", class: "form-label" %>
+        <%= f.text_field :company, placeholder: "Acme Inc.", class: "form-input" %>
       </div>
-      <%= f.submit "Create account →", class: "w-full cursor-pointer rounded-md bg-primary px-5 py-3 font-mono text-[13px] font-semibold uppercase tracking-wider text-primary-foreground transition hover:brightness-110 glow-amber" %>
+      <%= f.submit "Create account →", class: "form-submit glow-amber" %>
     <% end %>
 
     <p class="mt-6 text-[14px] text-muted-foreground">
-      Already have a key?
-      <%= link_to "Go to API keys", docs_section_path("api-keys"), class: "text-primary hover:underline" %>
-      · <%= link_to "Read docs", docs_path, class: "text-primary hover:underline" %>
+      Already signed up?
+      <%= link_to "Continue setup", signup_path, class: "text-primary hover:underline" %>
+      · <%= link_to "API keys", docs_section_path("api-keys"), class: "text-primary hover:underline" %>
+      · <%= link_to "Docs", docs_path, class: "text-primary hover:underline" %>
     </p>
   </div>
 </main>

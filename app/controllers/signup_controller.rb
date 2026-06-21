@@ -5,7 +5,12 @@ class SignupController < ApplicationController
 
   def new
     if customer_signed_in?
-      redirect_to(current_customer.onboarding_completed? ? docs_section_path("api-keys") : onboarding_step_path("api-key"))
+      destination = if current_customer.onboarding_completed?
+        docs_section_path("api-keys")
+      else
+        onboarding_step_path(Customers::OnboardingProgress.for(current_customer).step)
+      end
+      redirect_to destination
     end
   end
 

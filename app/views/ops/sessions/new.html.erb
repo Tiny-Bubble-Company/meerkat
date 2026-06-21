@@ -2,16 +2,16 @@
 
 <h1 class="login-brand"><%= render "shared/brand_logo", url: ops_login_path, variant: "inline" %></h1>
 
-<%= form_with url: ops_login_path, scope: :session do |f| %>
+<%= form_with url: ops_login_path, scope: :session, class: "form-stack" do |f| %>
   <div class="field">
-    <%= f.label :email, "Email" %>
-    <%= f.email_field :email, required: true, autofocus: true, autocomplete: "username" %>
+    <%= f.label :email, "Email", class: "form-label" %>
+    <%= f.email_field :email, required: true, autofocus: true, autocomplete: "username", class: "form-input" %>
   </div>
 
   <div class="field">
-    <%= f.label :password, "Password" %>
-    <%= f.password_field :password, required: true, autocomplete: "current-password" %>
+    <%= f.label :password, "Password", class: "form-label" %>
+    <%= f.password_field :password, required: true, autocomplete: "current-password", class: "form-input" %>
   </div>
 
-  <%= f.submit "Sign in", class: "btn btn-primary", style: "width:100%" %>
+  <%= f.submit "Sign in", class: "btn btn-primary form-submit" %>
 <% end %>

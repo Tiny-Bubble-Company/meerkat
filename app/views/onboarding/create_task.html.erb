@@ -17,7 +17,7 @@
   }
 }</code></pre>
 
-<%= form_with url: onboarding_create_task_path, scope: :task, method: :post do |f| %>
+<%= form_with url: onboarding_create_task_path, scope: :task, method: :post, class: "form-stack" do |f| %>
   <div class="field">
     <%= f.label :description, "Description" %>
     <%= f.text_field :description, value: @sample_payload[:description], required: true %>

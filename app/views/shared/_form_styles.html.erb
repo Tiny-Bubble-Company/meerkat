@@ -1,0 +1,92 @@
+<style>
+  :root {
+    --form-surface: var(--surface, var(--background, #141419));
+    --form-border: var(--border, #2a2a35);
+    --form-text: var(--text, var(--foreground, #f4f4f5));
+    --form-muted: var(--muted, var(--muted-foreground, #a1a1aa));
+    --form-accent: var(--accent, var(--primary, #fbbf24));
+    --form-sans: var(--sans, "DM Sans", -apple-system, BlinkMacSystemFont, sans-serif);
+  }
+
+  .field { margin-bottom: 1.25rem; }
+
+  .form-label,
+  .field label {
+    display: block;
+    color: var(--form-muted);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-input,
+  .field input[type="text"],
+  .field input[type="email"],
+  .field input[type="password"],
+  .field input[type="url"],
+  .field input[type="search"],
+  .field input[type="tel"],
+  .field input[type="number"],
+  .field select,
+  .field textarea {
+    display: block;
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.8125rem 1rem;
+    background: var(--form-surface);
+    border: 1px solid var(--form-border);
+    border-radius: 10px;
+    color: var(--form-text);
+    font-family: var(--form-sans);
+    font-size: 1rem;
+    line-height: 1.4;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .field select {
+    padding-right: 2.5rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23a1a1aa' d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    cursor: pointer;
+  }
+
+  .form-input::placeholder,
+  .field input::placeholder,
+  .field textarea::placeholder { color: #71717a; opacity: 1; }
+
+  .form-input:focus,
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    outline: none;
+    border-color: var(--form-accent);
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15);
+  }
+
+  .form-stack { display: flex; flex-direction: column; gap: 0; }
+  .form-stack .field:last-child { margin-bottom: 0; }
+
+  .form-submit {
+    width: 100%;
+    min-height: 3rem;
+    margin-top: 0.5rem;
+    cursor: pointer;
+    border: none;
+    border-radius: 10px;
+    background: var(--form-accent);
+    color: #09090b;
+    font-family: var(--form-sans);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: filter 0.15s ease;
+  }
+
+  .form-submit:hover { filter: brightness(1.08); }
+</style>

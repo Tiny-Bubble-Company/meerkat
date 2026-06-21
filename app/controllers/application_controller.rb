@@ -12,7 +12,15 @@ class ApplicationController < ActionController::Base
 
   protect_from_forgery with: :exception
 
+  before_action :sync_onboarding_session, if: :customer_signed_in?
+
   private
+
+  def sync_onboarding_session
+    return if current_customer.onboarding_completed?
+
+    Customers::OnboardingProgress.for(current_customer).sync_session!(session)
+  end
 
   def current_customer
     @current_customer ||= Customer.find_by(id: session[:customer_id]) if session[:customer_id]
@@ -32,7 +40,7 @@ class ApplicationController < ActionController::Base
     return unless customer_signed_in?
     return if current_customer.onboarding_completed?
 
-    step = session[:onboarding_step].presence || "api-key"
+    step = Customers::OnboardingProgress.for(current_customer).step
     redirect_to onboarding_step_path(step)
   end
 

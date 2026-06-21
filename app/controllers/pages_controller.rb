@@ -10,7 +10,7 @@ class PagesController < ApplicationController
       destination = if current_customer.onboarding_completed?
         docs_section_path("api-keys")
       else
-        onboarding_step_path(session[:onboarding_step].presence || "api-key")
+        onboarding_step_path(Customers::OnboardingProgress.for(current_customer).step)
       end
       redirect_to destination
     else

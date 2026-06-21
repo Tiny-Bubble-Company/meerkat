@@ -27,7 +27,7 @@ module MarketingHelper
         return cloud_app_url("/docs/api-keys")
       end
 
-      step = session[:onboarding_step].presence || "api-key"
+      step = Customers::OnboardingProgress.for(current_customer).step
       return cloud_app_url("/onboarding/#{step}")
     end
 
@@ -36,7 +36,7 @@ module MarketingHelper
     if current_customer.onboarding_completed?
       docs_section_path("api-keys")
     else
-      onboarding_step_path(session[:onboarding_step].presence || "api-key")
+      onboarding_step_path(Customers::OnboardingProgress.for(current_customer).step)
     end
   end
 

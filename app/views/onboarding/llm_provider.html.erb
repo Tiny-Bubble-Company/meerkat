@@ -16,7 +16,7 @@
   </div>
 <% end %>
 
-<%= form_with url: onboarding_save_llm_provider_path, scope: :llm, method: :post do |f| %>
+<%= form_with url: onboarding_save_llm_provider_path, scope: :llm, method: :post, class: "form-stack" do |f| %>
   <div class="field">
     <%= f.label :provider, "Provider" %>
     <%= f.select :provider,

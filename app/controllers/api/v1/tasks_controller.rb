@@ -3,7 +3,7 @@
 module Api
   module V1
     class TasksController < Api::BaseController
-      before_action :set_task, only: [:show, :update, :destroy, :run, :runs, :events, :pause, :resume]
+      before_action :set_task, only: [ :show, :update, :destroy, :run, :runs, :events, :pause, :resume ]
 
       def index
         result = Tasks::List.call(
@@ -168,19 +168,19 @@ module Api
       end
 
       def index_limit
-        [params.fetch(:limit, 50).to_i, 200].min
+        [ params.fetch(:limit, 50).to_i, 200 ].min
       end
 
       def index_offset
-        [params.fetch(:offset, 0).to_i, 0].max
+        [ params.fetch(:offset, 0).to_i, 0 ].max
       end
 
       def runs_limit
-        [params.fetch(:limit, 20).to_i, 100].min
+        [ params.fetch(:limit, 20).to_i, 100 ].min
       end
 
       def events_limit
-        [params.fetch(:limit, 50).to_i, 200].min
+        [ params.fetch(:limit, 50).to_i, 200 ].min
       end
 
       def run_async?

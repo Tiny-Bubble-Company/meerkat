@@ -15,6 +15,6 @@ class CreateMonitorRuns < ActiveRecord::Migration[8.1]
     end
 
     add_index :monitor_runs, :status
-    add_index :monitor_runs, [:monitor_task_id, :created_at]
+    add_index :monitor_runs, [ :monitor_task_id, :created_at ]
   end
 end

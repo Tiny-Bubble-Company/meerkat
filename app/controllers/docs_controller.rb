@@ -8,7 +8,7 @@ class DocsController < ApplicationController
   def show
     @section = resolve_section
     return if load_api_keys_section == :halt
-    return if load_llm_provider_section == :halt
+    nil if load_llm_provider_section == :halt
   end
 
   private

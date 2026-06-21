@@ -44,11 +44,11 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       post "signup", to: "signup#create"
-      resources :api_keys, only: [:index, :create, :destroy]
+      resources :api_keys, only: [ :index, :create, :destroy ]
 
       get "openapi", to: "openapi#show", defaults: { format: :yaml }
 
-      resources :tasks, only: [:index, :show, :create, :update, :destroy] do
+      resources :tasks, only: [ :index, :show, :create, :update, :destroy ] do
         member do
           post :run
           post :pause

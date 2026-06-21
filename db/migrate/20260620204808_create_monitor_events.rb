@@ -13,6 +13,6 @@ class CreateMonitorEvents < ActiveRecord::Migration[8.1]
     end
 
     add_index :monitor_events, :event_type
-    add_index :monitor_events, [:monitor_task_id, :created_at]
+    add_index :monitor_events, [ :monitor_task_id, :created_at ]
   end
 end

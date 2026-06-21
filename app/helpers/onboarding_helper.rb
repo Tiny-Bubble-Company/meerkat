@@ -17,11 +17,11 @@ module OnboardingHelper
       safe_join(ONBOARDING_STEPS.each_with_index.map do |item, index|
         state = if index < current_index
                   "done"
-                elsif index == current_index
+        elsif index == current_index
                   "current"
-                else
+        else
                   "upcoming"
-                end
+        end
 
         content_tag(:li, item[:label], class: "onboarding-step onboarding-step--#{state}")
       end)

@@ -18,7 +18,7 @@ class ApiKey < ApplicationRecord
       token_digest: digest(raw_token),
       token_prefix: raw_token[0, 12]
     )
-    [api_key, raw_token]
+    [ api_key, raw_token ]
   end
 
   def self.authenticate(raw_token)

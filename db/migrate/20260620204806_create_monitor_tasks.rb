@@ -19,6 +19,6 @@ class CreateMonitorTasks < ActiveRecord::Migration[8.1]
 
     add_index :monitor_tasks, :status
     add_index :monitor_tasks, :next_run_at
-    add_index :monitor_tasks, [:status, :next_run_at]
+    add_index :monitor_tasks, [ :status, :next_run_at ]
   end
 end

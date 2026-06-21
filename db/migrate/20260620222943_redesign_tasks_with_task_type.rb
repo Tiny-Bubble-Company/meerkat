@@ -14,7 +14,7 @@ class RedesignTasksWithTaskType < ActiveRecord::Migration[8.1]
     change_column_null :tasks, :frequency_seconds, true
 
     add_index :tasks, :task_type
-    add_index :tasks, [:task_type, :status]
-    add_index :tasks, [:task_type, :status, :next_run_at], name: "index_tasks_on_type_status_and_next_run_at"
+    add_index :tasks, [ :task_type, :status ]
+    add_index :tasks, [ :task_type, :status, :next_run_at ], name: "index_tasks_on_type_status_and_next_run_at"
   end
 end

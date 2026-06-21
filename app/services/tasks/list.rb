@@ -12,8 +12,8 @@ module Tasks
       @task_type = task_type
       @status = status
       @include_archived = include_archived
-      @limit = [[limit.to_i, 1].max, 200].min
-      @offset = [offset.to_i, 0].max
+      @limit = [ [ limit.to_i, 1 ].max, 200 ].min
+      @offset = [ offset.to_i, 0 ].max
       @customer = customer
     end
 

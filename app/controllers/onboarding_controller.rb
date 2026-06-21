@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class OnboardingController < ApplicationController
+  include OnboardingHelper
+
   layout "onboarding"
 
   STEPS = %w[api-key llm-provider create-task run-task waiting success].freeze

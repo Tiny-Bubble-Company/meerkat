@@ -1,0 +1,33 @@
+title = "Meerkat gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Documentation and example placeholders (not real secrets)"
+paths = [
+  '''README\.md''',
+  '''vendor/rails-agents/README\.md''',
+  '''app/controllers/use_cases_controller\.rb''',
+  '''app/views/docs/sections/_quickstart\.html\.erb''',
+  '''app/views/onboarding/run_task\.html\.erb''',
+  '''app/services/customers/save_llm_credential\.rb''',
+  '''app/views/onboarding/llm_provider\.html\.erb''',
+  '''app/views/docs/sections/_llm_provider\.html\.erb''',
+  '''\.env\.example''',
+  '''deploy/DEPLOY\.md''',
+  '''db/seeds\.rb''',
+]
+regexes = [
+  '''mk_YOUR_KEY''',
+  '''mk_live_\.\.\.''',
+  '''YOUR_API_KEY''',
+  '''sk-ant-\.\.\.''',
+  '''sk-or-\.\.\.''',
+  '''xai-\.\.\.''',
+  '''changeme123!''',
+  '''POSTGRES_PASSWORD=<strong-random-password>''',
+  '''POSTGRES_PASSWORD=choose-a-strong-password''',
+  '''RAILS_MASTER_KEY=\.\.\.''',
+  '''RAILS_MASTER_KEY=<content of config/master\.key>''',
+]

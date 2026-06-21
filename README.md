@@ -1,10 +1,52 @@
-# Meerkat
+<p align="center">
+  <a href="https://meerkatagents.com">
+    <img src=".github/readme-banner.png" alt="Meerkat — open source webhook-native agent task API" width="100%">
+  </a>
+</p>
 
-**Open source agentic task infrastructure API for developers**
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/Tiny-Bubble-Company/meerkat?style=flat-square&color=111111" alt="License: MIT"></a>
+  <a href="https://github.com/Tiny-Bubble-Company/meerkat/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/Tiny-Bubble-Company/meerkat/ci.yml?branch=main&style=flat-square&label=CI" alt="CI"></a>
+  <a href="https://github.com/Tiny-Bubble-Company/meerkat/stargazers"><img src="https://img.shields.io/github/stars/Tiny-Bubble-Company/meerkat?style=flat-square&color=111111" alt="GitHub stars"></a>
+  <img src="https://img.shields.io/badge/open%20source-MIT-111111?style=flat-square" alt="Open source">
+  <img src="https://img.shields.io/badge/BYOK-LLM%20keys-F5B800?style=flat-square&color=111111" alt="BYOK">
+  <img src="https://img.shields.io/badge/webhook--native-POST%20results-111111?style=flat-square" alt="Webhook-native">
+</p>
 
-Register async agent tasks in plain English. Meerkat executes them on a schedule or on demand and POSTs structured findings to your webhook — without you building schedulers, LLM tool loops, or webhook plumbing yourself.
+<p align="center">
+  <a href="https://meerkatagents.com"><strong>Website</strong></a>
+  &nbsp;·&nbsp;
+  <a href="https://cloud.meerkatagents.com/signup"><strong>Sign up free</strong></a>
+  &nbsp;·&nbsp;
+  <a href="https://meerkatagents.com/docs"><strong>Docs</strong></a>
+  &nbsp;·&nbsp;
+  <a href="#api-overview"><strong>API</strong></a>
+  &nbsp;·&nbsp;
+  <a href="#getting-started--docker-recommended"><strong>Self-host</strong></a>
+  &nbsp;·&nbsp;
+  <a href="https://github.com/Tiny-Bubble-Company/meerkat/issues"><strong>Issues</strong></a>
+</p>
 
-> **Self-host** with Docker, Render, or Fly.io — or use **[Meerkat Cloud](https://meerkatagents.com)** (same API, no workers to run).
+<p align="center">
+  <a href="https://meerkatagents.com">
+    <img src=".github/readme-hero.png" alt="Describe a task in plain English — Meerkat runs it async and POSTs results to your webhook" width="100%">
+  </a>
+</p>
+
+<p align="center"><sub>Hero from the <a href="https://meerkatagents.com">Meerkat</a> marketing site — Noir &amp; Gold design system.</sub></p>
+
+# Meerkat is an open source, webhook-native API for async agent tasks.
+
+Meerkat gives developers a single primitive for agentic async work — describe a task in plain English, bring your own LLM key, and get structured results POSTed to your webhook on a schedule or on demand.
+
+**Why Meerkat?**
+
+- **Webhook-native** — every task delivers JSON to your `output_webhook`; no polling
+- **BYOK** — Anthropic, OpenAI, OpenRouter, or Grok; keys encrypted at rest
+- **Recurring + one-off** — natural-language schedules (`every 2 hours`) or ad-hoc runs
+- **Self-host or Cloud** — identical REST API on Docker, Render, Fly.io, or [Meerkat Cloud](https://cloud.meerkatagents.com/signup)
+
+> **Self-host** with Docker in minutes — or use **[Meerkat Cloud](https://cloud.meerkatagents.com/signup)** (same API, no workers to run).
 
 <p align="center">
   <a href="https://render.com/deploy?repo=https://github.com/Tiny-Bubble-Company/meerkat">
@@ -49,13 +91,11 @@ Register async agent tasks in plain English. Meerkat executes them on a schedule
 
 ## What is Meerkat?
 
-Meerkat gives you a single primitive for agentic async work:
-
 ```
 Register a task → Meerkat runs it → findings POST to your webhook
 ```
 
-You describe the work in natural language, pass structured `input_params`, and Meerkat's agent executes it. The agent picks tools (webpage fetch, etc.), extracts structured findings, and delivers them as JSON to your `output_webhook`.
+Describe work in natural language, pass structured `input_params`, and Meerkat's agent executes it — picking tools (webpage fetch, etc.), extracting structured findings, and delivering JSON to your `output_webhook`.
 
 ```json
 POST /api/v1/tasks
@@ -572,4 +612,4 @@ Meerkat is built on **[rails-agents](https://github.com/your-org/rails-agents)**
 
 MIT — see [LICENSE](LICENSE).
 
-Self-host for free. For managed hosting with no queue ops, visit [Meerkat Cloud](https://meerkatagents.com).
+Self-host for free. For managed hosting with no queue ops, visit [Meerkat Cloud](https://cloud.meerkatagents.com/signup).

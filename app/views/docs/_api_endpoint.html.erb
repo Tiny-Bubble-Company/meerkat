@@ -1,0 +1,61 @@
+<%# locals: id, title, method, path, description:, parameters: [], request_label:, request_body:, responses: [] %>
+<section class="api-endpoint" id="<%= id %>">
+  <h2 class="api-endpoint-title"><%= title %></h2>
+
+  <div class="api-endpoint-header">
+    <span class="method method-<%= method %>"><%= method.upcase %></span>
+    <code class="api-path"><%= path %></code>
+  </div>
+
+  <% if local_assigns[:description] && description.present? %>
+    <p class="api-endpoint-desc"><%= description.html_safe %></p>
+  <% end %>
+
+  <% if local_assigns[:parameters] && parameters.any? %>
+    <h3 class="api-subheading">Parameters</h3>
+    <div class="api-table-wrap">
+      <table class="api-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>In</th>
+            <th>Required</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% parameters.each do |param| %>
+            <tr>
+              <td><code><%= param[:name] %></code></td>
+              <td><%= param[:type] %></td>
+              <td><%= param[:in] %></td>
+              <td><%= param[:required] ? "Yes" : "No" %></td>
+              <td><%= param[:description].html_safe %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+
+  <% if local_assigns[:request_body] && request_body.present? %>
+    <h3 class="api-subheading"><%= local_assigns[:request_label].presence || "Request body" %></h3>
+    <pre class="api-code"><code><%= request_body.strip %></code></pre>
+  <% end %>
+
+  <% if local_assigns[:responses] && responses.any? %>
+    <h3 class="api-subheading">Returns</h3>
+    <% responses.each do |response| %>
+      <div class="api-response">
+        <div class="api-response-label">
+          <span class="api-status api-status-<%= response[:status].to_s.first %>xx"><%= response[:status] %></span>
+          <span><%= response[:description] %></span>
+        </div>
+        <% if response[:body].present? %>
+          <pre class="api-code"><code><%= response[:body].strip %></code></pre>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+</section>

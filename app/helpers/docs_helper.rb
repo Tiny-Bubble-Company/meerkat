@@ -21,4 +21,8 @@ module DocsHelper
     active = @section == section
     link_to label, docs_section_path(section), class: "nav-link#{' active' if active}"
   end
+
+  def docs_api_path(suffix)
+    "#{api_base_url}#{suffix}"
+  end
 end

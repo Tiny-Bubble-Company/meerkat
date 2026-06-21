@@ -258,7 +258,7 @@
     <div class="onboarding-shell">
       <header class="onboarding-header">
         <%= render "shared/brand_logo", url: meerkat_website_url, variant: "inline" %>
-        <span style="color:var(--muted);font-size:0.9375rem">Setup</span>
+        <%= render "shared/user_menu", show_signup_link: false %>
       </header>
 
       <%= onboarding_progress(@step) if @step %>
@@ -272,13 +272,41 @@
     </div>
 
     <script>
-      document.querySelectorAll("[data-copy]").forEach(btn => {
-        btn.addEventListener("click", () => {
-          navigator.clipboard.writeText(btn.dataset.copy);
-          btn.textContent = "Copied";
-          setTimeout(() => { btn.textContent = "Copy key"; }, 2000);
+      (function () {
+        document.querySelectorAll("[data-user-menu]").forEach(function (menu) {
+          var toggle = menu.querySelector("[data-user-menu-toggle]");
+          var panel = menu.querySelector("[data-user-menu-panel]");
+          if (!toggle || !panel) return;
+
+          toggle.addEventListener("click", function (e) {
+            e.stopPropagation();
+            var open = panel.classList.toggle("hidden") === false;
+            toggle.setAttribute("aria-expanded", open ? "true" : "false");
+          });
+
+          document.addEventListener("click", function (e) {
+            if (!menu.contains(e.target)) {
+              panel.classList.add("hidden");
+              toggle.setAttribute("aria-expanded", "false");
+            }
+          });
+
+          document.addEventListener("keydown", function (e) {
+            if (e.key === "Escape") {
+              panel.classList.add("hidden");
+              toggle.setAttribute("aria-expanded", "false");
+            }
+          });
         });
-      });
+
+        document.querySelectorAll("[data-copy]").forEach(btn => {
+          btn.addEventListener("click", () => {
+            navigator.clipboard.writeText(btn.dataset.copy);
+            btn.textContent = "Copied";
+            setTimeout(() => { btn.textContent = "Copy key"; }, 2000);
+          });
+        });
+      })();
     </script>
   </body>
 </html>

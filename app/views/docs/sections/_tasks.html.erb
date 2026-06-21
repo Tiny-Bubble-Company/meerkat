@@ -1,37 +1,511 @@
-<h1>Tasks API</h1>
-<p class="lede">All endpoints under <code><%= api_base_url %>/tasks</code>. Auth required.</p>
+<h1>Tasks</h1>
+<p class="lede">
+  Register async agent work, trigger runs, and inspect history. All endpoints live under
+  <code><%= docs_api_path("/tasks") %></code> and require
+  <%= link_to "Bearer authentication", docs_section_path("authentication") %>.
+</p>
 
-<div class="endpoint"><span class="method method-get">GET</span> /tasks</div>
-<p>List tasks. Query: <code>task_type</code>, <code>status</code>, <code>limit</code>, <code>offset</code></p>
+<nav class="api-toc" aria-label="Tasks endpoints">
+  <h2 class="api-toc-heading">Endpoints</h2>
+  <ul>
+    <li><a href="#the-task-object">The Task object</a></li>
+    <li><a href="#list-tasks">List tasks</a></li>
+    <li><a href="#create-task">Create a task</a></li>
+    <li><a href="#retrieve-task">Retrieve a task</a></li>
+    <li><a href="#update-task">Update a task</a></li>
+    <li><a href="#replace-task">Replace a task</a></li>
+    <li><a href="#delete-task">Delete a task</a></li>
+    <li><a href="#run-task">Run a task</a></li>
+    <li><a href="#pause-task">Pause a task</a></li>
+    <li><a href="#resume-task">Resume a task</a></li>
+    <li><a href="#list-runs">List runs</a></li>
+    <li><a href="#list-events">List events</a></li>
+  </ul>
+</nav>
 
-<div class="endpoint"><span class="method method-post">POST</span> /tasks</div>
-<p>Create a task. Body: <code>task</code> object — requires <code>description</code>, <code>input_params</code>, and <code>output_webhook</code>. Optional <code>output_format</code> (defaults to <code>default</code>).</p>
+<section class="api-object" id="the-task-object">
+  <h2 class="api-endpoint-title">The Task object</h2>
+  <p class="api-endpoint-desc">
+    Tasks describe work Meerkat executes on your behalf. Recurring tasks run on a schedule;
+    one-off tasks run once and complete. Results are always POSTed to <code>output_webhook</code>.
+  </p>
 
-<div class="endpoint"><span class="method method-get">GET</span> /tasks/:id</div>
-<p>Get task details and current state.</p>
+  <div class="api-table-wrap">
+    <table class="api-table">
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><code>id</code></td><td>integer</td><td>Unique task identifier.</td></tr>
+        <tr><td><code>task_type</code></td><td>string</td><td><code>recurring</code> or <code>one_off</code>.</td></tr>
+        <tr><td><code>description</code></td><td>string</td><td>Plain-English instructions for the agent.</td></tr>
+        <tr><td><code>input_params</code></td><td>object</td><td>Structured inputs (URLs, tracking links, etc.).</td></tr>
+        <tr><td><code>frequency</code></td><td>string</td><td>Schedule for recurring tasks (e.g. <code>every 2 hours</code> or cron).</td></tr>
+        <tr><td><code>frequency_seconds</code></td><td>integer</td><td>Parsed interval in seconds (read-only).</td></tr>
+        <tr><td><code>output_webhook</code></td><td>string</td><td>HTTPS URL that receives JSON results.</td></tr>
+        <tr><td><code>output_format</code></td><td>string</td><td>Webhook shape preset or custom instruction. Default <code>default</code>.</td></tr>
+        <tr><td><code>status</code></td><td>string</td><td><code>active</code>, <code>paused</code>, <code>completed</code>, <code>archived</code>, or <code>failed</code>.</td></tr>
+        <tr><td><code>last_known_state</code></td><td>object</td><td>Latest structured findings (included on retrieve).</td></tr>
+        <tr><td><code>last_run_at</code></td><td>timestamp</td><td>When the task last executed.</td></tr>
+        <tr><td><code>next_run_at</code></td><td>timestamp</td><td>Next scheduled run (recurring only).</td></tr>
+        <tr><td><code>run_count</code></td><td>integer</td><td>Total completed runs.</td></tr>
+        <tr><td><code>consecutive_failures</code></td><td>integer</td><td>Failures since last success.</td></tr>
+        <tr><td><code>metadata</code></td><td>object</td><td>Opaque key-value metadata you attach.</td></tr>
+        <tr><td><code>created_at</code></td><td>timestamp</td><td>Creation time (ISO 8601).</td></tr>
+        <tr><td><code>updated_at</code></td><td>timestamp</td><td>Last update time (ISO 8601).</td></tr>
+      </tbody>
+    </table>
+  </div>
 
-<div class="endpoint"><span class="method method-patch">PATCH</span> /tasks/:id</div>
-<p>Partial update.</p>
+  <h3 class="api-subheading">Example object</h3>
+  <pre class="api-code"><code>{
+  "id": 42,
+  "task_type": "recurring",
+  "description": "Monitor DHL tracking and report status changes",
+  "input_params": {
+    "courier_tracking_link": "https://www.dhl.de/..."
+  },
+  "frequency": "every 2 hours",
+  "frequency_seconds": 7200,
+  "output_webhook": "https://your-app.com/hooks/meerkat",
+  "output_format": "default",
+  "status": "active",
+  "last_run_at": "2026-06-21T14:30:00Z",
+  "next_run_at": "2026-06-21T16:30:00Z",
+  "run_count": 12,
+  "consecutive_failures": 0,
+  "metadata": {},
+  "created_at": "2026-06-20T09:00:00Z",
+  "updated_at": "2026-06-21T14:30:05Z"
+}</code></pre>
+</section>
 
-<div class="endpoint"><span class="method method-post">POST</span> /tasks/:id</div>
-<p>Full replace (PUT semantics via PUT method).</p>
+<%= render "docs/api_endpoint",
+  id: "list-tasks",
+  title: "List tasks",
+  method: "get",
+  path: docs_api_path("/tasks"),
+  description: "Returns a paginated list of tasks belonging to the authenticated account.",
+  parameters: [
+    { name: "task_type", type: "string", in: "query", required: false, description: "Filter by <code>recurring</code> or <code>one_off</code>." },
+    { name: "status", type: "string", in: "query", required: false, description: "Filter by <code>active</code>, <code>paused</code>, <code>completed</code>, <code>archived</code>, or <code>failed</code>." },
+    { name: "include_archived", type: "boolean", in: "query", required: false, description: "Include archived tasks. Default <code>false</code>." },
+    { name: "limit", type: "integer", in: "query", required: false, description: "Page size (1–200). Default <code>50</code>." },
+    { name: "offset", type: "integer", in: "query", required: false, description: "Pagination offset. Default <code>0</code>." }
+  ],
+  responses: [
+    {
+      status: "200 OK",
+      description: "Paginated list of tasks.",
+      body: <<~JSON
+        {
+          "data": [
+            {
+              "id": 42,
+              "task_type": "recurring",
+              "description": "Monitor DHL tracking and report status changes",
+              "input_params": { "courier_tracking_link": "https://..." },
+              "frequency": "every 2 hours",
+              "frequency_seconds": 7200,
+              "output_webhook": "https://your-app.com/hooks/meerkat",
+              "output_format": "default",
+              "status": "active",
+              "last_run_at": "2026-06-21T14:30:00Z",
+              "next_run_at": "2026-06-21T16:30:00Z",
+              "run_count": 12,
+              "consecutive_failures": 0,
+              "metadata": {},
+              "created_at": "2026-06-20T09:00:00Z",
+              "updated_at": "2026-06-21T14:30:05Z"
+            }
+          ],
+          "meta": {
+            "limit": 50,
+            "offset": 0,
+            "count": 1,
+            "total": 1
+          }
+        }
+      JSON
+    }
+  ] %>
 
-<div class="endpoint"><span class="method method-delete">DELETE</span> /tasks/:id</div>
-<p>Archive or delete. Pass <code>permanent=true</code> to hard delete.</p>
+<%= render "docs/api_endpoint",
+  id: "create-task",
+  title: "Create a task",
+  method: "post",
+  path: docs_api_path("/tasks"),
+  description: "Registers a new task. One-off tasks run immediately by default; recurring tasks schedule their next run from creation time unless <code>run_immediately</code> is set.",
+  parameters: [
+    { name: "task", type: "object", in: "body", required: true, description: "Task attributes (see below)." },
+    { name: "task.task_type", type: "string", in: "body", required: false, description: "<code>recurring</code> (default) or <code>one_off</code>." },
+    { name: "task.description", type: "string", in: "body", required: true, description: "What the agent should do, in plain English." },
+    { name: "task.input_params", type: "object", in: "body", required: true, description: "Structured inputs referenced by the description." },
+    { name: "task.output_webhook", type: "string", in: "body", required: true, description: "HTTPS endpoint for JSON results." },
+    { name: "task.frequency", type: "string", in: "body", required: false, description: "Required for recurring tasks. Natural language or cron." },
+    { name: "task.output_format", type: "string", in: "body", required: false, description: "Webhook preset: <code>default</code>, <code>compact</code>, <code>flat</code>, <code>findings_only</code>, <code>minimal</code>, or a custom instruction." },
+    { name: "task.run_immediately", type: "boolean", in: "body", required: false, description: "Enqueue first run now. Default <code>true</code> for one-off, <code>false</code> for recurring." },
+    { name: "task.metadata", type: "object", in: "body", required: false, description: "Optional metadata stored on the task." }
+  ],
+  request_body: <<~JSON,
+    {
+      "task": {
+        "task_type": "one_off",
+        "description": "Fetch the page title from a Meerkat website",
+        "input_params": {
+          "url": "https://meerkatagents.com/"
+        },
+        "output_webhook": "https://your-app.com/hooks/meerkat",
+        "output_format": "default",
+        "run_immediately": true
+      }
+    }
+  JSON
+  responses: [
+    {
+      status: "201 Created",
+      description: "The created Task object.",
+      body: <<~JSON
+        {
+          "data": {
+            "id": 43,
+            "task_type": "one_off",
+            "description": "Fetch the page title from a Meerkat website",
+            "input_params": { "url": "https://meerkatagents.com/" },
+            "frequency": null,
+            "frequency_seconds": null,
+            "output_webhook": "https://your-app.com/hooks/meerkat",
+            "output_format": "default",
+            "status": "active",
+            "last_run_at": null,
+            "next_run_at": null,
+            "run_count": 0,
+            "consecutive_failures": 0,
+            "metadata": {},
+            "created_at": "2026-06-21T15:00:00Z",
+            "updated_at": "2026-06-21T15:00:00Z"
+          }
+        }
+      JSON
+    },
+    {
+      status: "422 Unprocessable Entity",
+      description: "Validation error (missing fields, invalid frequency, etc.).",
+      body: <<~JSON
+        {
+          "errors": [
+            {
+              "status": "422",
+              "title": "Invalid Task",
+              "detail": "output_webhook is required"
+            }
+          ]
+        }
+      JSON
+    }
+  ] %>
 
-<div class="endpoint"><span class="method method-post">POST</span> /tasks/:id/run</div>
-<p>Run now. Recurring or one-off.</p>
+<%= render "docs/api_endpoint",
+  id: "retrieve-task",
+  title: "Retrieve a task",
+  method: "get",
+  path: docs_api_path("/tasks/{id}"),
+  description: "Retrieves a single task by ID, including <code>last_known_state</code> from the most recent run.",
+  parameters: [
+    { name: "id", type: "integer", in: "path", required: true, description: "Task ID." }
+  ],
+  responses: [
+    {
+      status: "200 OK",
+      description: "Task with current state.",
+      body: <<~JSON
+        {
+          "data": {
+            "id": 42,
+            "task_type": "recurring",
+            "description": "Monitor DHL tracking and report status changes",
+            "input_params": { "courier_tracking_link": "https://..." },
+            "frequency": "every 2 hours",
+            "frequency_seconds": 7200,
+            "output_webhook": "https://your-app.com/hooks/meerkat",
+            "output_format": "default",
+            "status": "active",
+            "last_known_state": {
+              "status": "In transit",
+              "location": "Berlin, DE"
+            },
+            "last_run_at": "2026-06-21T14:30:00Z",
+            "next_run_at": "2026-06-21T16:30:00Z",
+            "run_count": 12,
+            "consecutive_failures": 0,
+            "metadata": {},
+            "created_at": "2026-06-20T09:00:00Z",
+            "updated_at": "2026-06-21T14:30:05Z"
+          }
+        }
+      JSON
+    },
+    {
+      status: "404 Not Found",
+      description: "No task with that ID for your account.",
+      body: <<~JSON
+        {
+          "errors": [
+            {
+              "status": "404",
+              "title": "Not Found",
+              "detail": "Couldn't find Task with id=999"
+            }
+          ]
+        }
+      JSON
+    }
+  ] %>
 
-<div class="endpoint"><span class="method method-post">POST</span> /tasks/:id/pause</div>
-<div class="endpoint"><span class="method method-post">POST</span> /tasks/:id/resume</div>
+<%= render "docs/api_endpoint",
+  id: "update-task",
+  title: "Update a task",
+  method: "patch",
+  path: docs_api_path("/tasks/{id}"),
+  description: "Partially updates a task. Only include fields you want to change.",
+  parameters: [
+    { name: "id", type: "integer", in: "path", required: true, description: "Task ID." },
+    { name: "task", type: "object", in: "body", required: true, description: "Fields to update." }
+  ],
+  request_body: <<~JSON,
+    {
+      "task": {
+        "description": "Monitor DHL and alert on delivery exceptions only",
+        "frequency": "every 30 minutes"
+      }
+    }
+  JSON
+  responses: [
+    {
+      status: "200 OK",
+      description: "Updated Task object.",
+      body: <<~JSON
+        {
+          "data": {
+            "id": 42,
+            "task_type": "recurring",
+            "description": "Monitor DHL and alert on delivery exceptions only",
+            "frequency": "every 30 minutes",
+            "frequency_seconds": 1800,
+            "status": "active"
+          }
+        }
+      JSON
+    }
+  ] %>
 
-<div class="endpoint"><span class="method method-get">GET</span> /tasks/:id/runs</div>
-<div class="endpoint"><span class="method method-get">GET</span> /tasks/:id/events</div>
+<%= render "docs/api_endpoint",
+  id: "replace-task",
+  title: "Replace a task",
+  method: "put",
+  path: docs_api_path("/tasks/{id}"),
+  description: "Replaces a task entirely. Requires <code>description</code>, <code>input_params</code>, and <code>output_webhook</code>. Recurring tasks also require <code>frequency</code>.",
+  parameters: [
+    { name: "id", type: "integer", in: "path", required: true, description: "Task ID." },
+    { name: "task", type: "object", in: "body", required: true, description: "Full task representation." }
+  ],
+  request_body: <<~JSON,
+    {
+      "task": {
+        "description": "Monitor UPS tracking page for changes",
+        "input_params": { "courier_tracking_link": "https://ups.com/..." },
+        "frequency": "hourly",
+        "output_webhook": "https://your-app.com/hooks/meerkat",
+        "output_format": "flat"
+      }
+    }
+  JSON
+  responses: [
+    { status: "200 OK", description: "Replaced Task object.", body: '{ "data": { "id": 42, "description": "Monitor UPS tracking page for changes", "status": "active" } }' }
+  ] %>
 
-<h2>Create example</h2>
-<pre><code>curl -X POST <%= api_base_url %>/tasks \
-  -H "Authorization: Bearer mk_..." \
-  -H "Content-Type: application/json" \
-  -d '{"task":{"task_type":"one_off","description":"Fetch courier status","input_params":{"courier_tracking_link":"https://..."},"output_webhook":"https://..."}}'</code></pre>
+<%= render "docs/api_endpoint",
+  id: "delete-task",
+  title: "Delete a task",
+  method: "delete",
+  path: docs_api_path("/tasks/{id}"),
+  description: "Archives the task by default. Pass <code>permanent=true</code> to hard-delete and remove run history.",
+  parameters: [
+    { name: "id", type: "integer", in: "path", required: true, description: "Task ID." },
+    { name: "permanent", type: "boolean", in: "query", required: false, description: "Hard delete. Default <code>false</code> (archive)." }
+  ],
+  responses: [
+    { status: "204 No Content", description: "Task deleted or archived. Empty response body." }
+  ] %>
 
-<p><%= link_to "Webhooks →", docs_section_path("webhooks") %></p>
+<%= render "docs/api_endpoint",
+  id: "run-task",
+  title: "Run a task",
+  method: "post",
+  path: docs_api_path("/tasks/{id}/run"),
+  description: "Triggers an on-demand run. Works for recurring and one-off tasks. By default the run is async (<code>async=true</code>) and returns <code>202</code> with a pending run; set <code>async=false</code> to wait for completion.",
+  parameters: [
+    { name: "id", type: "integer", in: "path", required: true, description: "Task ID." },
+    { name: "async", type: "boolean", in: "query", required: false, description: "Run in background. Default <code>true</code>." }
+  ],
+  responses: [
+    {
+      status: "202 Accepted",
+      description: "Run enqueued (async).",
+      body: <<~JSON
+        {
+          "data": {
+            "id": 128,
+            "task_id": 42,
+            "status": "pending",
+            "output": null,
+            "structured_output": {},
+            "error": null,
+            "usage": {},
+            "change_detected": false,
+            "started_at": null,
+            "finished_at": null,
+            "created_at": "2026-06-21T15:05:00Z"
+          }
+        }
+      JSON
+    },
+    {
+      status: "200 OK",
+      description: "Run completed synchronously (<code>async=false</code>).",
+      body: <<~JSON
+        {
+          "data": {
+            "id": 128,
+            "task_id": 42,
+            "status": "succeeded",
+            "structured_output": {
+              "summary": "Status unchanged",
+              "findings": { "status": "In transit" },
+              "change_detected": false
+            },
+            "usage": { "input_tokens": 1200, "output_tokens": 180 },
+            "change_detected": false,
+            "finished_at": "2026-06-21T15:05:12Z"
+          }
+        }
+      JSON
+    }
+  ] %>
+
+<%= render "docs/api_endpoint",
+  id: "pause-task",
+  title: "Pause a task",
+  method: "post",
+  path: docs_api_path("/tasks/{id}/pause"),
+  description: "Pauses a recurring task. Scheduled runs stop until resumed.",
+  parameters: [
+    { name: "id", type: "integer", in: "path", required: true, description: "Task ID." }
+  ],
+  responses: [
+    { status: "200 OK", description: "Task with <code>status: paused</code>.", body: '{ "data": { "id": 42, "status": "paused" } }' }
+  ] %>
+
+<%= render "docs/api_endpoint",
+  id: "resume-task",
+  title: "Resume a task",
+  method: "post",
+  path: docs_api_path("/tasks/{id}/resume"),
+  description: "Resumes a paused recurring task and enqueues the next run.",
+  parameters: [
+    { name: "id", type: "integer", in: "path", required: true, description: "Task ID." }
+  ],
+  responses: [
+    { status: "200 OK", description: "Task with <code>status: active</code>.", body: '{ "data": { "id": 42, "status": "active" } }' }
+  ] %>
+
+<%= render "docs/api_endpoint",
+  id: "list-runs",
+  title: "List runs",
+  method: "get",
+  path: docs_api_path("/tasks/{id}/runs"),
+  description: "Returns execution history for a task, newest first.",
+  parameters: [
+    { name: "id", type: "integer", in: "path", required: true, description: "Task ID." },
+    { name: "limit", type: "integer", in: "query", required: false, description: "Max runs to return (1–100). Default <code>20</code>." }
+  ],
+  responses: [
+    {
+      status: "200 OK",
+      description: "List of TaskRun objects.",
+      body: <<~JSON
+        {
+          "data": [
+            {
+              "id": 128,
+              "task_id": 42,
+              "status": "succeeded",
+              "structured_output": {
+                "summary": "Status changed to Out for delivery",
+                "findings": { "status": "Out for delivery", "eta": "2026-06-21T18:00:00Z" },
+                "change_detected": true
+              },
+              "error": null,
+              "usage": { "input_tokens": 1400, "output_tokens": 210 },
+              "change_detected": true,
+              "started_at": "2026-06-21T14:30:01Z",
+              "finished_at": "2026-06-21T14:30:14Z",
+              "created_at": "2026-06-21T14:30:00Z"
+            }
+          ],
+          "meta": { "limit": 20, "count": 1, "task_id": 42 }
+        }
+      JSON
+    }
+  ] %>
+
+<%= render "docs/api_endpoint",
+  id: "list-events",
+  title: "List events",
+  method: "get",
+  path: docs_api_path("/tasks/{id}/events"),
+  description: "Audit log for a task — registrations, runs, webhook deliveries, and failures.",
+  parameters: [
+    { name: "id", type: "integer", in: "path", required: true, description: "Task ID." },
+    { name: "limit", type: "integer", in: "query", required: false, description: "Max events (1–200). Default <code>50</code>." }
+  ],
+  responses: [
+    {
+      status: "200 OK",
+      description: "List of TaskEvent objects.",
+      body: <<~JSON
+        {
+          "data": [
+            {
+              "id": 501,
+              "task_id": 42,
+              "task_run_id": 128,
+              "event_type": "webhook_delivered",
+              "payload": {
+                "summary": "Status changed to Out for delivery",
+                "findings": { "status": "Out for delivery" },
+                "change_detected": true
+              },
+              "webhook_url": "https://your-app.com/hooks/meerkat",
+              "webhook_response_code": 200,
+              "webhook_delivered_at": "2026-06-21T14:30:15Z",
+              "created_at": "2026-06-21T14:30:15Z"
+            }
+          ],
+          "meta": { "limit": 50, "count": 1, "task_id": 42 }
+        }
+      JSON
+    }
+  ] %>
+
+<div class="api-footer-links">
+  <p>
+    <%= link_to "Task types →", docs_section_path("task-types") %>
+    · <%= link_to "Webhooks →", docs_section_path("webhooks") %>
+    · <%= link_to "OpenAPI spec →", docs_section_path("reference") %>
+  </p>
+</div>

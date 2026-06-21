@@ -1,0 +1,34 @@
+<% if customer_signed_in? %>
+  <div class="user-menu" data-user-menu>
+    <% if customer_company_label %>
+      <span class="user-menu-company"><%= customer_company_label %></span>
+    <% end %>
+
+    <button
+      type="button"
+      class="user-menu-trigger"
+      data-user-menu-toggle
+      aria-expanded="false"
+      aria-haspopup="true"
+      aria-label="Account menu"
+    >
+      <span class="user-menu-avatar" aria-hidden="true"><%= customer_initials %></span>
+      <svg class="user-menu-chevron" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
+        <path fill="currentColor" d="M2 4l4 4 4-4"/>
+      </svg>
+    </button>
+
+    <div class="user-menu-dropdown hidden" data-user-menu-panel role="menu">
+      <div class="user-menu-meta">
+        <% if current_customer.name.present? %>
+          <p class="user-menu-meta-name"><%= current_customer.name %></p>
+        <% end %>
+        <p class="user-menu-meta-email"><%= current_customer.email %></p>
+      </div>
+      <div class="user-menu-divider" role="separator"></div>
+      <%= button_to "Sign out", logout_path, method: :delete, class: "user-menu-signout", form: { class: "user-menu-signout-form", data: { turbo: false } } %>
+    </div>
+  </div>
+<% elsif local_assigns.fetch(:show_signup_link, true) %>
+  <%= link_to "Sign up →", signup_path, class: "user-menu-signup-link" %>
+<% end %>

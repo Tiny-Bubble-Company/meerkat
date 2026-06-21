@@ -1,0 +1,35 @@
+<h1>Quickstart</h1>
+<p class="lede">Sign up, copy your API key, create a one-off task with a webhook URL.</p>
+
+<h2>1. Get an API key</h2>
+<p><%= link_to "Sign up", signup_path %> or open <%= link_to "API Keys", docs_section_path("api-keys") %> if you already have an account.</p>
+
+<h2>2. Connect your LLM provider</h2>
+<p>
+  Add your Anthropic or OpenAI key in <%= link_to "LLM Provider", docs_section_path("llm-provider") %>.
+  Model usage is billed by your provider — Meerkat runs tasks using your key.
+</p>
+
+<h2>3. Create a one-off task</h2>
+<pre><code>curl -X POST <%= api_base_url %>/tasks \
+  -H "Authorization: Bearer mk_YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "task": {
+      "task_type": "one_off",
+      "description": "Fetch courier status and report findings",
+      "input_params": {
+        "courier_tracking_link": "https://..."
+      },
+      "output_webhook": "https://your-app.com/hook",
+      "run_immediately": true
+    }
+  }'</code></pre>
+<p><code>output_webhook</code> is required. <code>output_format</code> is optional and defaults to <code>default</code> — see <%= link_to "Webhooks", docs_section_path("webhooks") %>.</p>
+<p>With <code>run_immediately: true</code> (default for one-off tasks), Meerkat runs the task right away and POSTs results to your webhook.</p>
+
+<h2>4. Check the run</h2>
+<pre><code>curl <%= api_base_url %>/tasks/1/runs \
+  -H "Authorization: Bearer mk_YOUR_KEY"</code></pre>
+
+<p><%= link_to "Task types →", docs_section_path("task-types") %> · <%= link_to "Full Tasks API →", docs_section_path("tasks") %></p>

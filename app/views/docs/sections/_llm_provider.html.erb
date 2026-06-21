@@ -1,0 +1,75 @@
+<h1>LLM provider</h1>
+<p class="lede">
+  Meerkat runs agent tasks using <strong>your</strong> API key.
+  Model usage is billed by your provider — your Meerkat subscription covers scheduling, execution, and webhooks.
+</p>
+
+<% if current_customer.llm_configured? %>
+  <div class="key-banner" style="margin-bottom: 1.5rem">
+    <p><strong>Status:</strong> Connected — <%= current_customer.llm_provider_label %></p>
+    <p class="field-hint">Key: <%= current_customer.llm_key_hint %> · Model: <%= current_customer.resolved_llm_model %></p>
+  </div>
+<% else %>
+  <div class="flash flash-alert">No LLM provider connected. Task runs will fail until you add a key.</div>
+<% end %>
+
+<%= form_with url: docs_llm_provider_path, scope: :llm, method: :post, class: "form-stack" do |f| %>
+  <div class="field">
+    <%= f.label :provider, "Provider" %>
+    <%= f.select :provider,
+      [
+        ["Anthropic (Claude)", "anthropic"],
+        ["OpenAI (GPT)", "openai"],
+        ["OpenRouter (multi-model)", "openrouter"],
+        ["Grok / xAI", "grok"]
+      ],
+      { selected: current_customer.llm_provider.presence || "anthropic" },
+      id: "llm_provider_select" %>
+    <p class="field-hint">
+      Get keys:
+      <a href="https://console.anthropic.com/keys" target="_blank" rel="noopener">Anthropic</a> ·
+      <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">OpenAI</a> ·
+      <a href="https://openrouter.ai/keys" target="_blank" rel="noopener">OpenRouter</a> ·
+      <a href="https://console.x.ai/" target="_blank" rel="noopener">xAI/Grok</a>
+    </p>
+  </div>
+
+  <div class="field">
+    <%= f.label :api_key, "API key" %>
+    <%= f.password_field :api_key, autocomplete: "off",
+      placeholder: current_customer.llm_configured? ? "Leave blank to keep current key" : "sk-ant- / sk- / sk-or- / xai-...",
+      id: "llm_api_key_input" %>
+    <p class="field-hint">Stored encrypted. Never logged or returned by the API.</p>
+  </div>
+
+  <div class="field">
+    <%= f.label :model, "Model (optional)" %>
+    <%= f.text_field :model, value: current_customer.llm_model,
+      placeholder: Customer::DEFAULT_LLM_MODELS.map { |p, m| "#{p}: #{m}" }.join(" · "),
+      id: "llm_model_input" %>
+    <p class="field-hint">Leave blank for the provider default.</p>
+  </div>
+
+  <%= f.submit "Save provider", class: "btn btn-primary" %>
+<% end %>
+
+<h2>Default models</h2>
+<table>
+  <thead><tr><th>Provider</th><th>Default model</th><th>Get key</th></tr></thead>
+  <tbody>
+    <tr><td>Anthropic</td><td><code><%= Customer::DEFAULT_LLM_MODELS['anthropic'] %></code></td><td><a href="https://console.anthropic.com/keys" target="_blank" rel="noopener">console.anthropic.com</a></td></tr>
+    <tr><td>OpenAI</td><td><code><%= Customer::DEFAULT_LLM_MODELS['openai'] %></code></td><td><a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">platform.openai.com</a></td></tr>
+    <tr><td>OpenRouter</td><td><code><%= Customer::DEFAULT_LLM_MODELS['openrouter'] %></code></td><td><a href="https://openrouter.ai/keys" target="_blank" rel="noopener">openrouter.ai</a></td></tr>
+    <tr><td>Grok / xAI</td><td><code><%= Customer::DEFAULT_LLM_MODELS['grok'] %></code></td><td><a href="https://console.x.ai/" target="_blank" rel="noopener">console.x.ai</a></td></tr>
+  </tbody>
+</table>
+
+<p class="section-body muted-link">Rotate keys anytime. The new key takes effect immediately for all future runs.</p>
+
+<script>
+  const placeholders = <%= raw Customers::SaveLlmCredential::KEY_PLACEHOLDERS.to_json %>;
+  document.getElementById("llm_provider_select")?.addEventListener("change", function() {
+    const keyInput = document.getElementById("llm_api_key_input");
+    if (keyInput && placeholders[this.value]) keyInput.placeholder = placeholders[this.value];
+  });
+</script>

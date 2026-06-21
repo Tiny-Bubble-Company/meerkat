@@ -1,0 +1,9 @@
+#!/bin/bash -e
+
+# If running the rails server, prepare all databases (primary + queue/cache/cable).
+# db:prepare creates the DB if it doesn't exist, then runs pending migrations.
+if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
+  ./bin/rails db:prepare
+fi
+
+exec "${@}"

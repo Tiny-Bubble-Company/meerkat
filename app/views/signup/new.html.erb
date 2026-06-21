@@ -1,0 +1,28 @@
+<% content_for :title, "Sign up — Meerkat" %>
+
+<main class="home-main">
+  <div class="signup-box">
+    <h1>Sign up</h1>
+    <p class="sub">Get an API key. Manage keys in the dashboard. Create tasks via the API.</p>
+
+    <%= form_with url: signup_path, scope: :customer do |f| %>
+      <div class="field">
+        <%= f.label :email, "Email" %>
+        <%= f.email_field :email, required: true, autofocus: true, placeholder: "you@company.com" %>
+      </div>
+      <div class="field">
+        <%= f.label :name, "Name" %>
+        <%= f.text_field :name, placeholder: "Your name" %>
+      </div>
+      <div class="field">
+        <%= f.label :company, "Company (optional)" %>
+        <%= f.text_field :company, placeholder: "Acme Inc." %>
+      </div>
+      <%= f.submit "Create account", class: "btn btn-primary", style: "width:100%" %>
+    <% end %>
+
+    <p style="margin-top:1.25rem;color:var(--muted);font-size:0.9375rem">
+      Already have a key? <%= link_to "Go to API keys", docs_section_path("api-keys") %>
+    </p>
+  </div>
+</main>

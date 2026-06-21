@@ -1,0 +1,16 @@
+<% content_for :title, "Run task — Meerkat" %>
+
+<h1>Run your task</h1>
+<p class="lede">Task #<%= @task.id %> is ready. Trigger the first run — same as <code>POST /tasks/:id/run</code>.</p>
+
+<div class="endpoint-row">
+  <span class="method method-post">POST</span>
+  <code><%= api_base_url %>/tasks/<%= @task.id %>/run</code>
+</div>
+
+<pre><code>curl -X POST <%= api_base_url %>/tasks/<%= @task.id %>/run \
+  -H "Authorization: Bearer YOUR_API_KEY"</code></pre>
+
+<div class="actions">
+  <%= button_to "Run task now", onboarding_run_task_path, method: :post, class: "btn btn-primary" %>
+</div>

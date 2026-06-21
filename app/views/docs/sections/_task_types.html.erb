@@ -1,0 +1,24 @@
+<h1>Task types</h1>
+<p class="lede">Pick <code>recurring</code> or <code>one_off</code>. Every task requires <code>output_webhook</code>. <code>output_format</code> is optional (defaults to <code>default</code>).</p>
+
+<h2>recurring</h2>
+<p>Runs on a schedule. Agent compares each run to prior state and reports meaningful changes.</p>
+<pre><code>{
+  "task_type": "recurring",
+  "frequency": "every 2 hours",
+  "description": "...",
+  "input_params": { "courier_tracking_link": "https://..." },
+  "output_webhook": "https://..."
+}</code></pre>
+<p>Frequency: natural language (<code>every 30 minutes</code>, <code>hourly</code>) or cron. Add optional <code>output_format</code> to control webhook payload shape.</p>
+
+<h2>one_off</h2>
+<p>Runs once, reports findings, marks complete. No schedule.</p>
+<pre><code>{
+  "task_type": "one_off",
+  "description": "...",
+  "input_params": { "courier_tracking_link": "https://..." },
+  "output_webhook": "https://..."
+}</code></pre>
+
+<p><%= link_to "Tasks API →", docs_section_path("tasks") %> · <%= link_to "Webhooks →", docs_section_path("webhooks") %></p>

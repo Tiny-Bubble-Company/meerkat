@@ -1,0 +1,23 @@
+<% content_for :title, "Your API key — Meerkat" %>
+
+<h1>Your API key</h1>
+<p class="lede">We generated a key for you. Copy it now — you won't see the full key again.</p>
+
+<div class="warning-banner">
+  <strong>Important:</strong> Store this key somewhere safe. It is shown only once.
+</div>
+
+<% if @api_key.present? %>
+  <div class="key-banner">
+    <div class="key-value">
+      <code id="new-key"><%= @api_key %></code>
+      <button type="button" class="btn btn-primary" data-copy="<%= @api_key %>">Copy key</button>
+    </div>
+  </div>
+<% else %>
+  <p class="flash flash-alert">This key was already shown. Generate a new one from API Keys after setup.</p>
+<% end %>
+
+<div class="actions">
+  <%= button_to "I've copied my key — continue", onboarding_acknowledge_key_path, method: :post, class: "btn btn-primary", disabled: (@api_key.blank? && !current_customer.api_keys.active.exists?) %>
+</div>

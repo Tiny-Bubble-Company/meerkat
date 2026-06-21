@@ -1,0 +1,12 @@
+<h1>Authentication</h1>
+<p class="lede">Every task endpoint requires your API key.</p>
+
+<h2>Header</h2>
+<pre><code>Authorization: Bearer mk_...</code></pre>
+<p>Or use <code>X-Api-Key: mk_...</code></p>
+
+<h2>Get a key</h2>
+<p>Keys are created in the <%= link_to "API Keys", docs_section_path("api-keys") %> dashboard — not via docs. One key is issued at signup; generate more anytime.</p>
+
+<h2>Errors</h2>
+<div class="endpoint"><span class="method method-get">401</span> Invalid or missing key</div>

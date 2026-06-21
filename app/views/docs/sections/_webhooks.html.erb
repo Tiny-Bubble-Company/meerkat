@@ -1,0 +1,39 @@
+<h1>Webhooks</h1>
+<p class="lede"><code>output_webhook</code> is <strong>required</strong> on every task. Meerkat POSTs JSON when runs finish or state changes. <code>output_format</code> is optional and defaults to <code>default</code>.</p>
+
+<h2>Default output format</h2>
+<p>If you omit <code>output_format</code>, Meerkat uses the <code>default</code> preset:</p>
+<pre><code>{
+  "event": "run_completed",
+  "task_id": 1,
+  "task_run_id": 42,
+  "occurred_at": "2026-06-20T12:00:00Z",
+  "data": {
+    "summary": "...",
+    "findings": { ... },
+    "change_detected": true
+  }
+}</code></pre>
+
+<h2>Other output formats</h2>
+<p>Optional — pass <code>output_format</code> on task create to reshape the webhook payload.</p>
+<div class="endpoint"><span class="method method-get">default</span> Standard envelope with <code>data</code> object (used when omitted)</div>
+<div class="endpoint"><span class="method method-get">compact</span> <code>summary</code>, <code>change_detected</code>, <code>findings</code> at top level</div>
+<div class="endpoint"><span class="method method-get">flat</span> Findings merged into webhook root alongside metadata</div>
+<div class="endpoint"><span class="method method-get">findings_only</span> Findings object only</div>
+<div class="endpoint"><span class="method method-get">minimal</span> <code>event</code>, <code>task_id</code>, <code>summary</code>, <code>change_detected</code></div>
+
+<pre><code>{
+  "task": {
+    "description": "...",
+    "output_webhook": "https://your-app.com/hook",
+    "output_format": "flat"
+  }
+}</code></pre>
+
+<p>Custom instruction example: <code>"Return only status and eta as snake_case keys"</code></p>
+
+<h2>Retries</h2>
+<p>Failed deliveries are retried with backoff. Check <code>GET /tasks/:id/events</code> for delivery history.</p>
+
+<p><%= link_to "Tasks API →", docs_section_path("tasks") %></p>

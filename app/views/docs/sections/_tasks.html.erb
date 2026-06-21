@@ -1,0 +1,37 @@
+<h1>Tasks API</h1>
+<p class="lede">All endpoints under <code><%= api_base_url %>/tasks</code>. Auth required.</p>
+
+<div class="endpoint"><span class="method method-get">GET</span> /tasks</div>
+<p>List tasks. Query: <code>task_type</code>, <code>status</code>, <code>limit</code>, <code>offset</code></p>
+
+<div class="endpoint"><span class="method method-post">POST</span> /tasks</div>
+<p>Create a task. Body: <code>task</code> object — requires <code>description</code>, <code>input_params</code>, and <code>output_webhook</code>. Optional <code>output_format</code> (defaults to <code>default</code>).</p>
+
+<div class="endpoint"><span class="method method-get">GET</span> /tasks/:id</div>
+<p>Get task details and current state.</p>
+
+<div class="endpoint"><span class="method method-patch">PATCH</span> /tasks/:id</div>
+<p>Partial update.</p>
+
+<div class="endpoint"><span class="method method-post">POST</span> /tasks/:id</div>
+<p>Full replace (PUT semantics via PUT method).</p>
+
+<div class="endpoint"><span class="method method-delete">DELETE</span> /tasks/:id</div>
+<p>Archive or delete. Pass <code>permanent=true</code> to hard delete.</p>
+
+<div class="endpoint"><span class="method method-post">POST</span> /tasks/:id/run</div>
+<p>Run now. Recurring or one-off.</p>
+
+<div class="endpoint"><span class="method method-post">POST</span> /tasks/:id/pause</div>
+<div class="endpoint"><span class="method method-post">POST</span> /tasks/:id/resume</div>
+
+<div class="endpoint"><span class="method method-get">GET</span> /tasks/:id/runs</div>
+<div class="endpoint"><span class="method method-get">GET</span> /tasks/:id/events</div>
+
+<h2>Create example</h2>
+<pre><code>curl -X POST <%= api_base_url %>/tasks \
+  -H "Authorization: Bearer mk_..." \
+  -H "Content-Type: application/json" \
+  -d '{"task":{"task_type":"one_off","description":"Fetch courier status","input_params":{"courier_tracking_link":"https://..."},"output_webhook":"https://..."}}'</code></pre>
+
+<p><%= link_to "Webhooks →", docs_section_path("webhooks") %></p>

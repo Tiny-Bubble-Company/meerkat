@@ -1,0 +1,38 @@
+<% content_for :title, "Running — Meerkat" %>
+
+<div id="waiting-state">
+  <h1>Running your task</h1>
+  <p class="lede">Hang tight — the agent is working. This usually takes a few seconds.</p>
+
+  <div class="waiting-panel">
+    <div class="spinner"></div>
+    <p class="run-status-text" id="run-status-label">Status: <%= @run.status %></p>
+  </div>
+</div>
+
+<script>
+  (function () {
+    const statusUrl = "<%= onboarding_run_status_path %>";
+    const processUrl = "<%= onboarding_process_run_path %>";
+    const successUrl = "<%= onboarding_step_path("success") %>";
+    const csrf = document.querySelector('meta[name="csrf-token"]').content;
+
+    async function poll() {
+      const response = await fetch(statusUrl, { headers: { "Accept": "application/json" } });
+      if (!response.ok) return setTimeout(poll, 1200);
+
+      const data = await response.json();
+      const label = document.getElementById("run-status-label");
+      if (label) label.textContent = "Status: " + data.status;
+
+      if (!data.finished) return setTimeout(poll, 1200);
+
+      setTimeout(() => { window.location.href = successUrl; }, 1000);
+    }
+
+    fetch(processUrl, {
+      method: "POST",
+      headers: { "Accept": "application/json", "X-CSRF-Token": csrf }
+    }).finally(poll);
+  })();
+</script>

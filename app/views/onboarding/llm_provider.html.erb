@@ -1,0 +1,74 @@
+<% content_for :title, "Connect LLM — Meerkat" %>
+
+<h1>Connect your LLM provider</h1>
+<p class="lede">
+  Meerkat runs agent tasks using <strong>your</strong> API key — billed directly by your provider.
+  Meerkat only charges for scheduling, execution, and webhook delivery.
+</p>
+
+<% if @llm_configured %>
+  <div class="warning-banner">
+    <strong>Connected:</strong> <%= current_customer.llm_provider_label %>
+    <% if current_customer.llm_key_hint.present? %>
+      (<%= current_customer.llm_key_hint %>)
+    <% end %>
+    — submit again to replace the key.
+  </div>
+<% end %>
+
+<%= form_with url: onboarding_save_llm_provider_path, scope: :llm, method: :post do |f| %>
+  <div class="field">
+    <%= f.label :provider, "Provider" %>
+    <%= f.select :provider,
+      [
+        ["Anthropic (Claude)", "anthropic"],
+        ["OpenAI (GPT)", "openai"],
+        ["OpenRouter (multi-model)", "openrouter"],
+        ["Grok / xAI", "grok"]
+      ],
+      { selected: current_customer.llm_provider.presence || "anthropic" },
+      required: true, id: "llm_provider_select" %>
+    <p class="field-hint">
+      <a href="https://console.anthropic.com/keys" target="_blank" rel="noopener">Anthropic</a> ·
+      <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">OpenAI</a> ·
+      <a href="https://openrouter.ai/keys" target="_blank" rel="noopener">OpenRouter</a> ·
+      <a href="https://console.x.ai/" target="_blank" rel="noopener">xAI/Grok</a>
+    </p>
+  </div>
+
+  <div class="field">
+    <%= f.label :api_key, "API key" %>
+    <%= f.password_field :api_key, required: !@llm_configured, autocomplete: "off",
+      placeholder: @llm_configured ? "Leave blank to keep current key" : "sk-ant- / sk- / sk-or- / xai-...",
+      id: "llm_api_key_input" %>
+    <p class="field-hint">Stored encrypted. Never logged or returned by the API.</p>
+  </div>
+
+  <div class="field">
+    <%= f.label :model, "Model (optional)" %>
+    <%= f.text_field :model,
+      value: current_customer.llm_model,
+      placeholder: @default_models.map { |p, m| "#{p}: #{m}" }.join(" · "),
+      id: "llm_model_input" %>
+    <p class="field-hint">Leave blank for the provider default. Examples: <code>claude-opus-4-5</code>, <code>gpt-4o</code>, <code>grok-3</code></p>
+  </div>
+
+  <div class="actions">
+    <%= f.submit @llm_configured ? "Update & continue" : "Save & continue", class: "btn btn-primary" %>
+  </div>
+<% end %>
+
+<script>
+  const placeholders = <%= raw @default_models.map { |p, m|
+    key_ph = Customers::SaveLlmCredential::KEY_PLACEHOLDERS[p] || "sk-..."
+    [p, { key: key_ph, model: m }]
+  }.to_h.to_json %>;
+
+  document.getElementById("llm_provider_select")?.addEventListener("change", function() {
+    const p = placeholders[this.value] || {};
+    const keyInput = document.getElementById("llm_api_key_input");
+    const modelInput = document.getElementById("llm_model_input");
+    if (keyInput && p.key) keyInput.placeholder = p.key;
+    if (modelInput && p.model) modelInput.placeholder = p.model;
+  });
+</script>

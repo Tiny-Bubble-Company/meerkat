@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+# Process monitors + webhooks queues in-process (see config/queue.yml).
+ENV["SOLID_QUEUE_IN_PUMA"] ||= "1"
+exec "./bin/rails", "server", *ARGV

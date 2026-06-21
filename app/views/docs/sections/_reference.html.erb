@@ -1,0 +1,11 @@
+<h1>OpenAPI</h1>
+<p class="lede">Machine-readable spec for all endpoints.</p>
+
+<div class="endpoint"><span class="method method-get">GET</span> <%= api_base_url %>/openapi</div>
+
+<p style="margin-top:1.5rem">
+  <%= link_to "Download YAML", "#{api_base_url}/openapi", class: "btn btn-primary" %>
+</p>
+
+<h2>Base URL</h2>
+<pre><code><%= api_base_url %></code></pre>

@@ -1,0 +1,56 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: meerkat
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-meerkat}
+      POSTGRES_DB: meerkat_production
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U meerkat"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${PORT:-3000}:80"
+    environment:
+      # ── Database ──────────────────────────────────────────────────────────
+      DATABASE_URL: "postgresql://meerkat:${POSTGRES_PASSWORD:-meerkat}@db/meerkat_production"
+      QUEUE_DATABASE_URL: "postgresql://meerkat:${POSTGRES_PASSWORD:-meerkat}@db/meerkat_production_queue"
+      CACHE_DATABASE_URL: "postgresql://meerkat:${POSTGRES_PASSWORD:-meerkat}@db/meerkat_production_cache"
+      CABLE_DATABASE_URL: "postgresql://meerkat:${POSTGRES_PASSWORD:-meerkat}@db/meerkat_production_cable"
+
+      # ── Rails ─────────────────────────────────────────────────────────────
+      RAILS_ENV: production
+      RAILS_LOG_TO_STDOUT: "1"
+      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}   # content of config/master.key
+
+      # ── Queue (runs workers inside Puma) ──────────────────────────────────
+      SOLID_QUEUE_IN_PUMA: "1"
+
+      # ── LLM (optional — used only if you don't use BYOK per customer) ─────
+      # ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      # OPENAI_API_KEY: ${OPENAI_API_KEY}
+      # OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      # XAI_API_KEY: ${XAI_API_KEY}
+      # MEERKAT_DEFAULT_LLM_PROVIDER: anthropic
+
+      # ── Optional tuning ───────────────────────────────────────────────────
+      MEERKAT_FAILURE_THRESHOLD: ${MEERKAT_FAILURE_THRESHOLD:-5}
+      MEERKAT_WEBHOOK_TIMEOUT: ${MEERKAT_WEBHOOK_TIMEOUT:-15}
+      MEERKAT_CORS_ORIGINS: ${MEERKAT_CORS_ORIGINS:-*}
+    volumes:
+      - storage_data:/rails/storage
+
+volumes:
+  postgres_data:
+  storage_data:

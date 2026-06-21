@@ -1,0 +1,159 @@
+<% content_for :title, "Meerkat — Open Source Agentic Task API for Developers" %>
+
+<main class="home-main">
+  <header class="hero">
+    <p class="eyebrow">Open source · BYOK · Webhook-native</p>
+    <h1>Describe work in plain English.<br>Meerkat runs it async.</h1>
+    <p class="hero-lead">
+      Open source infrastructure for developers who need agents to monitor links,
+      track deliveries, and report results — without building schedulers,
+      webhook plumbing, or LLM tool loops yourself.
+    </p>
+    <div class="cta-row">
+      <%= link_to "Sign up on Cloud", signup_path, class: "btn btn-primary" %>
+      <%= link_to "API docs", docs_path, class: "btn btn-ghost" %>
+      <%= link_to "GitHub", github_repo_url, class: "btn btn-ghost", target: "_blank", rel: "noopener" %>
+    </div>
+  </header>
+
+  <section class="home-section deploy-section">
+    <h2>Deploy your own</h2>
+    <p class="section-body">Self-host Meerkat in one click. Same API as Cloud — you run the infra, users bring their own LLM keys.</p>
+    <div class="deploy-row">
+      <a href="<%= deploy_to_render_url %>" class="deploy-btn deploy-btn--render" target="_blank" rel="noopener">
+        <span class="deploy-btn-label">Deploy to</span>
+        <strong>Render</strong>
+      </a>
+      <a href="<%= deploy_to_fly_url %>" class="deploy-btn deploy-btn--fly" target="_blank" rel="noopener">
+        <span class="deploy-btn-label">Deploy to</span>
+        <strong>Fly.io</strong>
+      </a>
+      <a href="<%= github_repo_url %>#getting-started--docker-recommended" class="deploy-btn deploy-btn--docker" target="_blank" rel="noopener">
+        <span class="deploy-btn-label">Self-host with</span>
+        <strong>Docker</strong>
+      </a>
+    </div>
+    <p class="section-body muted-link">
+      Also: <%= link_to "Kamal VPS deploy", github_repo_url + "#production-deployment", target: "_blank", rel: "noopener" %> ·
+      <%= link_to "local dev guide", github_repo_url + "#getting-started--local-development", target: "_blank", rel: "noopener" %>
+    </p>
+  </section>
+
+  <section class="home-section">
+    <h2>Self-host vs Meerkat Cloud</h2>
+    <div class="compare-grid">
+      <div class="compare-card">
+        <h3>Open source (self-host)</h3>
+        <ul>
+          <li>Free — MIT license</li>
+          <li>Docker, Render, Fly.io, or Kamal</li>
+          <li>Full API + webhook delivery</li>
+          <li>Users bring LLM keys (BYOK)</li>
+          <li>You operate Postgres + workers</li>
+        </ul>
+        <%= link_to "View on GitHub →", github_repo_url, class: "compare-link", target: "_blank", rel: "noopener" %>
+      </div>
+      <div class="compare-card compare-card--highlight">
+        <h3>Meerkat Cloud</h3>
+        <ul>
+          <li>Same API — no workers to run</li>
+          <li>Managed queues + webhooks</li>
+          <li>BYOK — your Anthropic, OpenAI, OpenRouter, or Grok key</li>
+          <li>LLM billed by your provider</li>
+          <li>Monthly subscription for infra</li>
+        </ul>
+        <%= link_to "Sign up free →", signup_path, class: "compare-link" %>
+      </div>
+    </div>
+  </section>
+
+  <section class="home-section">
+    <h2>Bring your own LLM key</h2>
+    <p class="section-body">
+      Meerkat never resells tokens. Each account connects an API key from
+      <strong>Anthropic</strong>, <strong>OpenAI</strong>, <strong>OpenRouter</strong>, or <strong>Grok</strong>.
+      Model usage is billed by your provider — Meerkat charges for scheduling, execution, and webhook delivery only.
+    </p>
+    <div class="pill-row four-col">
+      <div class="pill"><strong>Anthropic</strong><span>Claude — default <code>claude-sonnet-4-20250514</code></span></div>
+      <div class="pill"><strong>OpenAI</strong><span>GPT — default <code>gpt-4o-mini</code></span></div>
+      <div class="pill"><strong>OpenRouter</strong><span>Multi-model — default Llama 3.3 70B</span></div>
+      <div class="pill"><strong>Grok / xAI</strong><span>Grok — default <code>grok-3-mini</code></span></div>
+    </div>
+  </section>
+
+  <section class="home-section">
+    <h2>The problem</h2>
+    <p class="section-body">
+      You want an agent to watch a courier link, scrape a price, or check a page — and ping your app when something changes.
+      That means schedules, background jobs, LLM tool calls, state diffing, and webhook delivery. Every product rebuilds the same stack.
+    </p>
+    <p class="section-body">
+      Meerkat gives you one primitive: <strong>register a task, run it, get results back.</strong>
+    </p>
+  </section>
+
+  <section class="home-section">
+    <h2>Register → Connect LLM → Run → Webhook</h2>
+    <div class="pill-row flow-row">
+      <div class="pill"><strong>1. Register</strong><span><code>POST /tasks</code> with description, params, webhook URL</span></div>
+      <div class="pill"><strong>2. Connect LLM</strong><span>Add your provider API key — encrypted, never exposed</span></div>
+      <div class="pill"><strong>3. Run</strong><span>Agent executes on schedule or on demand</span></div>
+      <div class="pill"><strong>4. Webhook</strong><span>Structured JSON POSTed to your URL</span></div>
+    </div>
+  </section>
+
+  <section class="home-section">
+    <h2>Task types</h2>
+    <div class="pill-row two-col">
+      <div class="pill"><strong>recurring</strong><span>Scheduled monitors with change detection — courier tracking, uptime, price watches</span></div>
+      <div class="pill"><strong>one_off</strong><span>Run once and complete — ad-hoc lookups and fire-and-forget jobs</span></div>
+    </div>
+  </section>
+
+  <section class="home-section">
+    <h2>Use cases</h2>
+    <div class="pill-row three-col">
+      <div class="pill"><strong>Courier tracking</strong><span>Pass a DHL/FedEx URL. Get webhooks when delivery status changes.</span></div>
+      <div class="pill"><strong>Price &amp; stock alerts</strong><span>Monitor a product page. Notify when price or availability shifts.</span></div>
+      <div class="pill"><strong>Page change detection</strong><span>Watch competitor pages, docs, or status sites for meaningful updates.</span></div>
+    </div>
+  </section>
+
+  <section class="home-section">
+    <h2>API endpoints</h2>
+    <div class="api-grid">
+      <div class="api-card">
+        <span class="method method-post">POST</span>
+        <strong>/api/v1/signup</strong>
+        <span>Create account, receive API key</span>
+      </div>
+      <div class="api-card">
+        <span class="method method-post">POST</span>
+        <strong>/api/v1/tasks</strong>
+        <span>Create recurring or one-off tasks</span>
+      </div>
+      <div class="api-card">
+        <span class="method method-post">POST</span>
+        <strong>/api/v1/tasks/:id/run</strong>
+        <span>Trigger an on-demand run</span>
+      </div>
+      <div class="api-card">
+        <span class="method method-get">GET</span>
+        <strong>/api/v1/tasks/:id/events</strong>
+        <span>Webhook delivery history</span>
+      </div>
+    </div>
+    <p class="section-body muted-link"><%= link_to "Full API reference →", docs_path %></p>
+  </section>
+
+  <section class="home-section cta-section">
+    <h2>Get started</h2>
+    <p class="section-body">Use Meerkat Cloud, or deploy your own instance in minutes.</p>
+    <div class="cta-row">
+      <%= link_to "Sign up free", signup_path, class: "btn btn-primary" %>
+      <%= link_to "Deploy to Render", deploy_to_render_url, class: "btn btn-ghost", target: "_blank", rel: "noopener" %>
+      <%= link_to "Read the docs", docs_path, class: "btn btn-ghost" %>
+    </div>
+  </section>
+</main>

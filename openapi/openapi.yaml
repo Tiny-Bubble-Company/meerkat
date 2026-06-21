@@ -1,0 +1,684 @@
+openapi: 3.1.0
+info:
+  title: Meerkat API
+  version: 2.0.0
+  description: |
+    Agentic task infrastructure for developers. Sign up via API, use your key, create async tasks.
+
+    ## Getting started
+    1. `POST /signup` — receive API key (shown once)
+    2. `Authorization: Bearer mk_...` on all task requests
+    3. `POST /tasks` — register and run work
+
+    ## Task types
+    - **recurring** — scheduled monitors with change detection
+    - **one_off** — run once and complete
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Local development
+  - url: http://localhost:3000
+    description: Website (docs at /docs)
+
+tags:
+  - name: Auth
+  - name: Tasks
+  - name: Task Runs
+  - name: Task Events
+  - name: Documentation
+
+paths:
+  /signup:
+    post:
+      tags: [Auth]
+      summary: Sign up and receive an API key
+      operationId: signup
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [customer]
+              properties:
+                customer:
+                  type: object
+                  required: [email]
+                  properties:
+                    email:
+                      type: string
+                      format: email
+                    name:
+                      type: string
+                    company:
+                      type: string
+      responses:
+        "201":
+          description: Customer created with API key
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+
+  /openapi:
+    get:
+      tags: [Documentation]
+      summary: OpenAPI specification
+      operationId: getOpenApiSpec
+      responses:
+        "200":
+          description: OpenAPI YAML document
+          content:
+            application/yaml:
+              schema:
+                type: string
+
+  /tasks:
+    get:
+      tags: [Tasks]
+      summary: List tasks
+      operationId: listTasks
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/LimitParam"
+        - $ref: "#/components/parameters/OffsetParam"
+        - $ref: "#/components/parameters/TaskTypeParam"
+        - $ref: "#/components/parameters/StatusFilterParam"
+        - $ref: "#/components/parameters/IncludeArchivedParam"
+      responses:
+        "200":
+          description: Paginated task list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskListResponse"
+    post:
+      tags: [Tasks]
+      summary: Create a task
+      operationId: createTask
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskCreateRequest"
+            examples:
+              recurringCourier:
+                summary: Recurring courier monitor
+                value:
+                  task:
+                    task_type: recurring
+                    description: Monitor courier tracking and notify on status changes
+                    input_params:
+                      courier_tracking_link: https://www.fedex.com/fedextrack/?trknbr=123456789012
+                    frequency: every 2 hours
+                    output_webhook: https://webhook.site/your-id
+                    run_immediately: true
+              oneOffCourier:
+                summary: One-off status check
+                value:
+                  task:
+                    task_type: one_off
+                    description: Fetch courier status once and report findings
+                    input_params:
+                      courier_tracking_link: https://www.fedex.com/fedextrack/?trknbr=123456789012
+                    output_webhook: https://webhook.site/your-id
+      responses:
+        "201":
+          description: Task created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskResponse"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+
+  /tasks/{id}:
+    parameters:
+      - $ref: "#/components/parameters/TaskId"
+    get:
+      tags: [Tasks]
+      summary: Get a task
+      operationId: getTask
+      responses:
+        "200":
+          description: Task details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskDetailResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      tags: [Tasks]
+      summary: Partially update a task
+      operationId: updateTask
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskUpdateRequest"
+      responses:
+        "200":
+          description: Task updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+    put:
+      tags: [Tasks]
+      summary: Replace a task
+      description: Requires description and input_params. Recurring tasks also require frequency.
+      operationId: replaceTask
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskReplaceRequest"
+      responses:
+        "200":
+          description: Task replaced
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+    delete:
+      tags: [Tasks]
+      summary: Delete a task
+      parameters:
+        - $ref: "#/components/parameters/PermanentDeleteParam"
+      operationId: deleteTask
+      responses:
+        "204":
+          description: Task deleted
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /tasks/{id}/run:
+    parameters:
+      - $ref: "#/components/parameters/TaskId"
+      - $ref: "#/components/parameters/AsyncRunParam"
+    post:
+      tags: [Tasks]
+      summary: Run a task on demand
+      operationId: runTask
+      responses:
+        "200":
+          description: Run completed (sync)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskRunResponse"
+        "202":
+          description: Run enqueued (async)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskRunResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+
+  /tasks/{id}/pause:
+    parameters:
+      - $ref: "#/components/parameters/TaskId"
+    post:
+      tags: [Tasks]
+      summary: Pause a recurring task
+      operationId: pauseTask
+      responses:
+        "200":
+          description: Task paused
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+
+  /tasks/{id}/resume:
+    parameters:
+      - $ref: "#/components/parameters/TaskId"
+    post:
+      tags: [Tasks]
+      summary: Resume a recurring task
+      operationId: resumeTask
+      responses:
+        "200":
+          description: Task resumed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/UnprocessableEntity"
+
+  /tasks/{id}/runs:
+    parameters:
+      - $ref: "#/components/parameters/TaskId"
+      - $ref: "#/components/parameters/LimitParam"
+    get:
+      tags: [Task Runs]
+      summary: List runs for a task
+      operationId: listTaskRuns
+      responses:
+        "200":
+          description: Run history
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskRunListResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /tasks/{id}/events:
+    parameters:
+      - $ref: "#/components/parameters/TaskId"
+      - $ref: "#/components/parameters/LimitParam"
+    get:
+      tags: [Task Events]
+      summary: List events for a task
+      operationId: listTaskEvents
+      responses:
+        "200":
+          description: Event log
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskEventListResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: API key from POST /signup (prefix mk_)
+
+  parameters:
+    TaskId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+    LimitParam:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 200
+        default: 50
+    OffsetParam:
+      name: offset
+      in: query
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    TaskTypeParam:
+      name: task_type
+      in: query
+      schema:
+        type: string
+        enum: [recurring, one_off]
+    StatusFilterParam:
+      name: status
+      in: query
+      schema:
+        type: string
+        enum: [active, paused, completed, archived, failed]
+    IncludeArchivedParam:
+      name: include_archived
+      in: query
+      schema:
+        type: boolean
+        default: false
+    PermanentDeleteParam:
+      name: permanent
+      in: query
+      schema:
+        type: boolean
+        default: false
+    AsyncRunParam:
+      name: async
+      in: query
+      schema:
+        type: boolean
+        default: true
+
+  responses:
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    UnprocessableEntity:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+  schemas:
+    ErrorResponse:
+      type: object
+      required: [errors]
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            required: [status, title, detail]
+            properties:
+              status:
+                type: string
+              title:
+                type: string
+              detail:
+                type: string
+
+    Meta:
+      type: object
+      properties:
+        limit:
+          type: integer
+        offset:
+          type: integer
+        count:
+          type: integer
+        total:
+          type: integer
+        task_id:
+          type: integer
+          format: int64
+
+    Task:
+      type: object
+      required:
+        - id
+        - task_type
+        - description
+        - input_params
+        - status
+        - run_count
+        - consecutive_failures
+        - metadata
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: integer
+          format: int64
+        task_type:
+          type: string
+          enum: [recurring, one_off]
+        description:
+          type: string
+        input_params:
+          type: object
+          additionalProperties: true
+        frequency:
+          type: string
+          nullable: true
+        frequency_seconds:
+          type: integer
+          nullable: true
+        output_webhook:
+          type: string
+          format: uri
+          nullable: true
+        output_format:
+          type: string
+          nullable: true
+          description: Webhook payload preset or custom agent instruction
+        status:
+          type: string
+          enum: [active, paused, completed, archived, failed]
+        last_run_at:
+          type: string
+          format: date-time
+          nullable: true
+        next_run_at:
+          type: string
+          format: date-time
+          nullable: true
+        last_known_state:
+          type: object
+          additionalProperties: true
+        run_count:
+          type: integer
+        consecutive_failures:
+          type: integer
+        metadata:
+          type: object
+          additionalProperties: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    TaskInput:
+      type: object
+      properties:
+        task_type:
+          type: string
+          enum: [recurring, one_off]
+          default: recurring
+        description:
+          type: string
+        input_params:
+          type: object
+          additionalProperties: true
+        frequency:
+          type: string
+          description: Required for recurring tasks; omit for one_off
+        output_webhook:
+          type: string
+          format: uri
+          description: Required. HTTPS URL that receives task results.
+        output_format:
+          type: string
+          nullable: true
+          default: default
+          description: |
+            Optional webhook response shape. Defaults to `default` when omitted.
+            Presets: default, compact, flat, findings_only, minimal.
+            Any other string is a custom agent instruction for shaping findings.
+          example: flat
+        metadata:
+          type: object
+          additionalProperties: true
+        run_immediately:
+          type: boolean
+          default: true
+        status:
+          type: string
+          enum: [active, paused, completed, archived, failed]
+
+    TaskCreateRequest:
+      type: object
+      required: [task]
+      properties:
+        task:
+          allOf:
+            - $ref: "#/components/schemas/TaskInput"
+            - type: object
+              required: [description, input_params, output_webhook]
+
+    TaskUpdateRequest:
+      type: object
+      required: [task]
+      properties:
+        task:
+          $ref: "#/components/schemas/TaskInput"
+
+    TaskReplaceRequest:
+      type: object
+      required: [task]
+      properties:
+        task:
+          allOf:
+            - $ref: "#/components/schemas/TaskInput"
+            - type: object
+              required: [description, input_params, output_webhook]
+
+    TaskResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/components/schemas/Task"
+
+    TaskDetailResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          allOf:
+            - $ref: "#/components/schemas/Task"
+            - type: object
+              required: [last_known_state]
+
+    TaskListResponse:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Task"
+        meta:
+          $ref: "#/components/schemas/Meta"
+
+    TaskRun:
+      type: object
+      required: [id, task_id, status, structured_output, usage, change_detected, created_at]
+      properties:
+        id:
+          type: integer
+          format: int64
+        task_id:
+          type: integer
+          format: int64
+        status:
+          type: string
+          enum: [pending, running, succeeded, failed]
+        output:
+          type: string
+          nullable: true
+        structured_output:
+          type: object
+          additionalProperties: true
+        error:
+          type: string
+          nullable: true
+        usage:
+          type: object
+          additionalProperties: true
+        change_detected:
+          type: boolean
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        finished_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    TaskRunResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: "#/components/schemas/TaskRun"
+
+    TaskRunListResponse:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/TaskRun"
+        meta:
+          $ref: "#/components/schemas/Meta"
+
+    TaskEvent:
+      type: object
+      required: [id, task_id, event_type, payload, created_at]
+      properties:
+        id:
+          type: integer
+          format: int64
+        task_id:
+          type: integer
+          format: int64
+        task_run_id:
+          type: integer
+          format: int64
+          nullable: true
+        event_type:
+          type: string
+          enum:
+            - task_registered
+            - task_updated
+            - task_archived
+            - run_started
+            - run_completed
+            - run_failed
+            - status_changed
+            - webhook_delivered
+            - webhook_failed
+        payload:
+          type: object
+          additionalProperties: true
+        webhook_url:
+          type: string
+          nullable: true
+        webhook_response_code:
+          type: integer
+          nullable: true
+        webhook_delivered_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    TaskEventListResponse:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/TaskEvent"
+        meta:
+          $ref: "#/components/schemas/Meta"

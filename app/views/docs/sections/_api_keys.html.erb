@@ -1,0 +1,58 @@
+<h1>API Keys</h1>
+<p class="lede">Generate and revoke keys here. Use a key in the <code>Authorization</code> header for all task API calls.</p>
+
+<% if @new_api_key.present? %>
+  <div class="key-banner">
+    <p><strong style="color:var(--accent)">Copy now</strong> — this key is shown once.</p>
+    <div class="key-value">
+      <code id="new-key"><%= @new_api_key %></code>
+      <button type="button" class="btn btn-primary" data-copy="<%= @new_api_key %>">Copy</button>
+    </div>
+  </div>
+<% end %>
+
+<%= form_with url: docs_api_keys_path, method: :post, class: "form-row" do %>
+  <div>
+    <label for="name">Key name</label>
+    <input type="text" name="name" id="name" placeholder="Production" value="Default">
+  </div>
+  <div style="align-self:flex-end">
+    <button type="submit" class="btn btn-primary">Generate key</button>
+  </div>
+<% end %>
+
+<% if @api_keys.any? %>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Prefix</th>
+        <th>Created</th>
+        <th>Last used</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @api_keys.each do |key| %>
+        <tr>
+          <td><%= key.name %></td>
+          <td><code><%= key.token_prefix %>…</code></td>
+          <td><%= key.created_at.strftime("%b %d, %Y") %></td>
+          <td><%= key.last_used_at ? key.last_used_at.strftime("%b %d, %Y") : "—" %></td>
+          <td>
+            <% unless key.revoked? %>
+              <%= button_to "Revoke", docs_api_key_path(key), method: :delete, class: "btn btn-danger", form: { data: { turbo_confirm: "Revoke this key?" } } %>
+            <% else %>
+              <span style="color:var(--muted)">Revoked</span>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>No keys yet. Generate one above.</p>
+<% end %>
+
+<h2>Next step</h2>
+<p><%= link_to "Create your first task →", docs_section_path("quickstart") %></p>

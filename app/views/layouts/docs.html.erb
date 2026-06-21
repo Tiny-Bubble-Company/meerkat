@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= content_for?(:title) ? yield(:title) : "Docs — Meerkat" %></title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <%= render "shared/theme" %>
+    <style>
+      .docs-shell {
+        display: grid;
+        grid-template-columns: 240px 1fr;
+        min-height: 100vh;
+      }
+
+      @media (max-width: 768px) {
+        .docs-shell { grid-template-columns: 1fr; }
+        .docs-sidebar { border-bottom: 1px solid var(--border); }
+      }
+
+      .docs-sidebar {
+        background: var(--surface);
+        border-right: 1px solid var(--border);
+        padding: 1.5rem 0;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow-y: auto;
+      }
+
+      .sidebar-logo {
+        display: block;
+        padding: 0 1.25rem 1.5rem;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text);
+        text-decoration: none;
+        letter-spacing: -0.03em;
+      }
+
+      .sidebar-logo em { color: var(--accent); font-style: normal; }
+
+      .sidebar-group {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+      }
+
+      .nav-link {
+        display: block;
+        padding: 0.65rem 1.25rem;
+        color: var(--muted);
+        font-size: 1.0625rem;
+        text-decoration: none;
+        border-left: 3px solid transparent;
+      }
+
+      .nav-link:hover { color: var(--text); background: var(--surface-2); text-decoration: none; }
+      .nav-link.active { color: var(--accent); border-left-color: var(--accent); background: var(--surface-2); }
+
+      .docs-content {
+        padding: 2.5rem 3rem 4rem;
+        max-width: 820px;
+      }
+
+      @media (max-width: 768px) {
+        .docs-content { padding: 1.5rem; }
+      }
+
+      .docs-content h1 {
+        font-size: var(--font-xl);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.75rem;
+      }
+
+      .docs-content .lede {
+        font-size: var(--font-lg);
+        color: var(--muted);
+        margin-bottom: 2rem;
+        max-width: 55ch;
+      }
+
+      .docs-content h2 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin: 2rem 0 0.75rem;
+        color: var(--text);
+      }
+
+      .docs-content p {
+        color: var(--muted);
+        margin-bottom: 1rem;
+        font-size: 1.0625rem;
+      }
+
+      .endpoint {
+        display: flex;
+        gap: 0.75rem;
+        align-items: baseline;
+        padding: 0.65rem 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 1rem;
+      }
+
+      .method {
+        font-family: var(--mono);
+        font-size: 0.8125rem;
+        font-weight: 600;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        min-width: 3.5rem;
+        text-align: center;
+      }
+
+      .method-get { background: #1e3a5f; color: #93c5fd; }
+      .method-post { background: #14532d; color: #86efac; }
+      .method-patch { background: #422006; color: #fcd34d; }
+      .method-delete { background: #450a0a; color: #fca5a5; }
+
+      .sidebar-footer {
+        padding: 1.5rem 1.25rem;
+        margin-top: 1rem;
+        border-top: 1px solid var(--border);
+        font-size: 0.9375rem;
+      }
+
+      .sidebar-footer a { color: var(--muted); }
+    </style>
+  </head>
+  <body>
+    <div class="docs-shell">
+      <aside class="docs-sidebar">
+        <%= link_to root_path, class: "sidebar-logo" do %>Meer<em>kat</em><% end %>
+
+        <div class="sidebar-group">Dashboard</div>
+        <%= docs_nav_link("api-keys") %>
+
+        <div class="sidebar-group">API</div>
+        <%= docs_nav_link("quickstart") %>
+        <%= docs_nav_link("authentication") %>
+        <%= docs_nav_link("task-types") %>
+        <%= docs_nav_link("tasks") %>
+        <%= docs_nav_link("webhooks") %>
+        <%= docs_nav_link("reference") %>
+
+        <div class="sidebar-footer">
+          <% if customer_signed_in? %>
+            <p style="color:var(--muted);margin-bottom:0.5rem"><%= current_customer.email %></p>
+            <%= button_to "Sign out", logout_path, method: :delete, class: "btn btn-ghost", style: "width:100%;font-size:0.9375rem" %>
+          <% else %>
+            <%= link_to "Sign up →", signup_path %>
+          <% end %>
+        </div>
+      </aside>
+
+      <main class="docs-content">
+        <% if flash[:notice] %><div class="flash flash-notice"><%= flash[:notice] %></div><% end %>
+        <% if flash[:alert] %><div class="flash flash-alert"><%= flash[:alert] %></div><% end %>
+
+        <%= yield %>
+      </main>
+    </div>
+
+    <script>
+      document.querySelectorAll("[data-copy]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          navigator.clipboard.writeText(btn.dataset.copy);
+          btn.textContent = "Copied";
+          setTimeout(() => { btn.textContent = "Copy"; }, 2000);
+        });
+      });
+    </script>
+  </body>
+</html>

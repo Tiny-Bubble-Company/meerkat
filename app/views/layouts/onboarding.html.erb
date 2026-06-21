@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="<%= form_authenticity_token %>">
     <title><%= content_for?(:title) ? yield(:title) : "Getting started — Meerkat" %></title>
+    <link rel="icon" href="/marketing/meerkat-logo.png" type="image/png">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <%= render "shared/theme" %>
@@ -162,7 +163,7 @@
   <body>
     <div class="onboarding-shell">
       <header class="onboarding-header">
-        <%= link_to root_path, class: "onboarding-logo" do %>Meer<em>kat</em><% end %>
+        <%= render "shared/brand_logo", url: root_path, variant: "inline" %>
         <span style="color:var(--muted);font-size:0.9375rem">Setup</span>
       </header>
 

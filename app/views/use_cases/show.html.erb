@@ -80,13 +80,4 @@
   </div>
 </section>
 
-<footer class="py-12">
-  <div class="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-6 font-mono text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
-    <span>© Meerkat · MIT licensed</span>
-    <div class="flex gap-6">
-      <%= link_to "GitHub", github_repo_url, class: "hover:text-foreground", target: "_blank", rel: "noopener" %>
-      <%= link_to "Docs", marketing_docs_path, class: "hover:text-foreground" %>
-      <%= link_to "Sign up", marketing_signup_path, class: "hover:text-foreground" %>
-    </div>
-  </div>
-</footer>
+<%= render "marketing/footer" %>

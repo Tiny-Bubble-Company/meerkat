@@ -1,7 +1,6 @@
 <% content_for :title, "Sign in — Meerkat Ops" %>
 
-<h1>Meerkat Ops</h1>
-<p>Sign in to the operations admin panel.</p>
+<h1 class="login-brand"><%= render "shared/brand_logo", url: ops_login_path, variant: "inline" %></h1>
 
 <%= form_with url: ops_login_path, scope: :session do |f| %>
   <div class="field">

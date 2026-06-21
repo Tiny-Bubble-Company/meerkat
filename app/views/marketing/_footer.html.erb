@@ -2,15 +2,7 @@
   <div class="mx-auto max-w-7xl px-6">
     <div class="flex flex-col items-start justify-between gap-8 md:flex-row md:items-center">
       <div>
-        <%= link_to root_path, class: "flex items-center gap-2" do %>
-          <div class="relative h-7 w-7">
-            <div class="absolute inset-0 rounded-md bg-gradient-to-br from-primary to-accent"></div>
-            <div class="absolute inset-[3px] flex items-center justify-center rounded-[5px] bg-background">
-              <span class="font-mono text-[11px] font-bold text-primary">mk</span>
-            </div>
-          </div>
-          <span class="font-mono text-[15px] font-semibold tracking-tight">meerkat</span>
-        <% end %>
+        <%= render "shared/brand_logo", url: root_path, variant: "marketing" %>
         <p class="mt-3 max-w-xs font-mono text-[11px] text-muted-foreground">
           Open source agentic task API. Webhook-native. BYOK. MIT licensed.
         </p>

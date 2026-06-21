@@ -171,4 +171,40 @@
   input:focus { outline: 2px solid var(--accent-dim); border-color: var(--accent); }
 
   label { display: block; color: var(--muted); font-size: 0.9375rem; margin-bottom: 0.35rem; }
+
+  .sidebar-brand,
+  .inline-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    text-decoration: none;
+    color: var(--text);
+  }
+
+  .sidebar-brand {
+    padding: 0 1.25rem 1.5rem;
+  }
+
+  .sidebar-brand-img,
+  .inline-brand-img {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.5rem;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .sidebar-brand-text,
+  .inline-brand-text {
+    font-family: var(--mono);
+    font-size: 1.1875rem;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+  }
+
+  .sidebar-brand-text em,
+  .inline-brand-text em {
+    color: var(--accent);
+    font-style: normal;
+  }
 </style>

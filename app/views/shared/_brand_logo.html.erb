@@ -1,0 +1,23 @@
+<%# locals: url, variant ("marketing" | "sidebar" | "inline"), title, img_class, text_class %>
+<% url = local_assigns.fetch(:url, root_path) %>
+<% variant = local_assigns.fetch(:variant, "marketing") %>
+<% title = local_assigns.fetch(:title, "Meerkat — Home") %>
+<% img_class = local_assigns.fetch(:img_class, "h-8 w-8 rounded-lg object-cover") %>
+<% text_class = local_assigns.fetch(:text_class, "font-mono text-[19px] font-semibold tracking-tight") %>
+
+<% if variant == "sidebar" %>
+  <%= link_to url, class: "sidebar-brand", title: title do %>
+    <img src="/marketing/meerkat-logo.png" alt="" width="32" height="32" class="sidebar-brand-img" aria-hidden="true">
+    <span class="sidebar-brand-text">Meer<em>kat</em></span>
+  <% end %>
+<% elsif variant == "inline" %>
+  <%= link_to url, class: "inline-brand", title: title do %>
+    <img src="/marketing/meerkat-logo.png" alt="" width="32" height="32" class="inline-brand-img" aria-hidden="true">
+    <span class="inline-brand-text">Meer<em>kat</em></span>
+  <% end %>
+<% else %>
+  <%= link_to url, class: "flex items-center gap-2.5", title: title do %>
+    <img src="/marketing/meerkat-logo.png" alt="" width="32" height="32" class="<%= img_class %>" aria-hidden="true">
+    <span class="<%= text_class %>">Meer<span class="text-primary not-italic">kat</span></span>
+  <% end %>
+<% end %>

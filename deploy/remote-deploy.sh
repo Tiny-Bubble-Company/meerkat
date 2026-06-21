@@ -15,11 +15,14 @@ chmod +x deploy/deploy.sh deploy/remote-deploy.sh
 echo "==> Building and restarting containers"
 ./deploy/deploy.sh up -d --build web caddy
 
-echo "==> Pruning old images"
-docker image prune -f >/dev/null || true
+echo "==> Preparing databases (migrate)"
+./deploy/deploy.sh exec -T web bin/rails db:prepare
 
 echo "==> Seeding ops admin (if configured)"
 ./deploy/deploy.sh exec -T web bin/rails db:seed || true
+
+echo "==> Pruning old images"
+docker image prune -f >/dev/null || true
 
 echo "==> Health checks"
 for i in 1 2 3 4 5 6 7 8 9 10; do

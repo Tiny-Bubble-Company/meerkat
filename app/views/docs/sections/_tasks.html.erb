@@ -32,7 +32,7 @@
         <tr><td><code>input_params</code></td><td>object</td><td>Structured inputs (URLs, tracking links, etc.).</td></tr>
         <tr><td><code>frequency</code></td><td>string</td><td>Schedule for recurring tasks (e.g. <code>every 2 hours</code> or cron).</td></tr>
         <tr><td><code>frequency_seconds</code></td><td>integer</td><td>Parsed interval in seconds (read-only).</td></tr>
-        <tr><td><code>output_webhook</code></td><td>string</td><td>HTTPS URL that receives JSON results.</td></tr>
+        <tr><td><code>output_webhook</code></td><td>string</td><td>HTTPS URL or <code>default</code> to use your account default webhook.</td></tr>
         <tr><td><code>output_format</code></td><td>string</td><td>Webhook shape preset or custom instruction. Default <code>default</code>.</td></tr>
         <tr><td><code>status</code></td><td>string</td><td><code>active</code>, <code>paused</code>, <code>completed</code>, <code>archived</code>, or <code>failed</code>.</td></tr>
         <tr><td><code>last_known_state</code></td><td>object</td><td>Latest structured findings (included on retrieve).</td></tr>
@@ -125,13 +125,13 @@
   title: "Create a task",
   method: "post",
   path: docs_api_path("/tasks"),
-  description: "Registers a new task. One-off tasks run immediately by default; recurring tasks schedule their next run from creation time unless <code>run_immediately</code> is set.",
+  description: "Registers a new task. One-off tasks run immediately by default; recurring tasks schedule their next run from creation time unless <code>run_immediately</code> is set. Set <code>output_webhook</code> to <code>default</code> to use your <%= link_to \"account default webhook\", docs_section_path(\"webhooks\") %>.",
   parameters: [
     { name: "task", type: "object", in: "body", required: true, description: "Task attributes (see below)." },
     { name: "task.task_type", type: "string", in: "body", required: false, description: "<code>recurring</code> (default) or <code>one_off</code>." },
     { name: "task.description", type: "string", in: "body", required: true, description: "What the agent should do, in plain English." },
     { name: "task.input_params", type: "object", in: "body", required: true, description: "Structured inputs referenced by the description." },
-    { name: "task.output_webhook", type: "string", in: "body", required: true, description: "HTTPS endpoint for JSON results." },
+    { name: "task.output_webhook", type: "string", in: "body", required: false, description: "HTTPS endpoint for JSON results, or <code>default</code> to use your <%= link_to \"account default webhook\", docs_section_path(\"webhooks\") %>. Required if no default is configured." },
     { name: "task.frequency", type: "string", in: "body", required: false, description: "Required for recurring tasks. Natural language or cron." },
     { name: "task.output_format", type: "string", in: "body", required: false, description: "Webhook preset: <code>default</code>, <code>compact</code>, <code>flat</code>, <code>findings_only</code>, <code>minimal</code>, or a custom instruction." },
     { name: "task.run_immediately", type: "boolean", in: "body", required: false, description: "Enqueue first run now. Default <code>true</code> for one-off, <code>false</code> for recurring." },

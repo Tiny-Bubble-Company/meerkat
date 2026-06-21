@@ -45,6 +45,16 @@ Rails.application.routes.draw do
   post "docs/api-keys", to: "docs/api_keys#create", as: :docs_api_keys
   delete "docs/api-keys/:id", to: "docs/api_keys#destroy", as: :docs_api_key
   post "docs/llm-provider", to: "docs/llm_providers#update", as: :docs_llm_provider
+  post "docs/webhook-settings", to: "docs/webhook_settings#update", as: :docs_webhook_settings
+
+  scope path: "docs/dashboard", module: "docs/dashboard", as: :docs_dashboard do
+    resources :tasks, only: %i[index show create] do
+      member do
+        post :run
+      end
+    end
+    resources :task_runs, only: %i[index show], path: "runs"
+  end
 
   namespace :api do
     namespace :v1 do

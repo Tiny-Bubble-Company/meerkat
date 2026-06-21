@@ -496,8 +496,10 @@ components:
           description: Required for recurring tasks; omit for one_off
         output_webhook:
           type: string
-          format: uri
-          description: Required. HTTPS URL that receives task results.
+          description: |
+            HTTPS URL that receives task results, or the literal `default` to use the
+            account default webhook configured in the dashboard. Required when creating
+            a task unless a default webhook is saved on the account.
         output_format:
           type: string
           nullable: true
@@ -525,7 +527,7 @@ components:
           allOf:
             - $ref: "#/components/schemas/TaskInput"
             - type: object
-              required: [description, input_params, output_webhook]
+              required: [description, input_params]
 
     TaskUpdateRequest:
       type: object
@@ -542,7 +544,7 @@ components:
           allOf:
             - $ref: "#/components/schemas/TaskInput"
             - type: object
-              required: [description, input_params, output_webhook]
+              required: [description, input_params]
 
     TaskResponse:
       type: object

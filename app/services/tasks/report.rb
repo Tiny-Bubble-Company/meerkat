@@ -15,14 +15,16 @@ module Tasks
     end
 
     def call
+      target = Tasks::WebhookTarget.for(@task)
+
       event = @task.task_events.create!(
         task_run: @run,
         event_type: @event_type,
         payload: @payload,
-        webhook_url: @task.output_webhook
+        webhook_url: target[:url]
       )
 
-      DeliverWebhookJob.perform_later(event.id) if @deliver_webhook && @task.output_webhook.present?
+      DeliverWebhookJob.perform_later(event.id) if @deliver_webhook && target[:configured]
 
       event
     end

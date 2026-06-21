@@ -14,10 +14,13 @@ module Webhooks
     def call
       return unless @url.present?
 
+      target = Tasks::WebhookTarget.for(@event.task)
+
       response = connection.post(@url) do |req|
         req.headers["Content-Type"] = "application/json"
         req.headers["User-Agent"] = "Meerkat/1.0"
         req.headers["X-Meerkat-Event"] = @event.event_type
+        target[:headers].each { |key, value| req.headers[key] = value }
         req.body = payload.to_json
       end
 

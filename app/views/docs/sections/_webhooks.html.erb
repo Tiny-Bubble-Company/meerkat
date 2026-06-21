@@ -1,21 +1,78 @@
 <h1>Webhooks</h1>
-<p class="lede"><code>output_webhook</code> is <strong>required</strong> on every task. Meerkat POSTs JSON when runs finish or state changes. <code>output_format</code> is optional and defaults to <code>default</code>.</p>
+<p class="lede">
+  Configure a default webhook for your account and choose how Meerkat shapes JSON payloads.
+  Per-task overrides are still supported via the Tasks API.
+</p>
 
-<h2>Default output format</h2>
+<h2 class="dash-section-title">Default webhook</h2>
+<p>
+  Save a default endpoint and optional headers. When creating tasks, set
+  <code>output_webhook</code> to <code>default</code> (or omit it if a default is configured)
+  to deliver results here.
+</p>
+
+<%= form_with url: docs_webhook_settings_path, scope: :webhook_settings, class: "dash-form" do |f| %>
+  <div class="field">
+    <%= f.label :default_output_webhook, "Webhook URL", class: "form-label" %>
+    <%= f.url_field :default_output_webhook,
+      value: current_customer.default_output_webhook,
+      placeholder: "https://your-app.com/hooks/meerkat",
+      class: "form-input" %>
+  </div>
+
+  <div class="field">
+    <%= f.label :default_webhook_headers_json, "Optional headers (JSON)", class: "form-label" %>
+    <%= f.text_area :default_webhook_headers_json,
+      rows: 6,
+      class: "form-input",
+      value: current_customer.default_webhook_headers_json,
+      placeholder: '{ "Authorization": "Bearer sk_live_..." }' %>
+    <p class="field-hint">Applied only when a task uses <code>output_webhook: "default"</code>.</p>
+  </div>
+
+  <%= f.submit "Save default webhook", class: "btn btn-primary" %>
+<% end %>
+
+<% if current_customer.default_webhook_configured? %>
+  <div class="key-banner" style="margin-top:1.5rem">
+    <p><strong style="color:var(--accent)">Default webhook active</strong></p>
+    <p style="color:var(--muted);margin:0"><code><%= current_customer.default_output_webhook %></code></p>
+  </div>
+<% end %>
+
+<h2 class="dash-section-title">Using default vs custom webhooks</h2>
+<pre class="api-code"><code>{
+  "task": {
+    "description": "Monitor package tracking",
+    "input_params": { "courier_tracking_link": "https://..." },
+    "output_webhook": "default"
+  }
+}</code></pre>
+
+<p>Or pass a full URL to override for a single task:</p>
+<pre class="api-code"><code>{
+  "task": {
+    "description": "...",
+    "input_params": { },
+    "output_webhook": "https://your-app.com/hooks/meerkat"
+  }
+}</code></pre>
+
+<h2 class="dash-section-title">Default output format</h2>
 <p>If you omit <code>output_format</code>, Meerkat uses the <code>default</code> preset:</p>
-<pre><code>{
+<pre class="api-code"><code>{
   "event": "run_completed",
   "task_id": 1,
   "task_run_id": 42,
   "occurred_at": "2026-06-20T12:00:00Z",
   "data": {
     "summary": "...",
-    "findings": { ... },
+    "findings": { },
     "change_detected": true
   }
 }</code></pre>
 
-<h2>Other output formats</h2>
+<h2 class="dash-section-title">Other output formats</h2>
 <p>Optional — pass <code>output_format</code> on task create to reshape the webhook payload.</p>
 <div class="endpoint"><span class="method method-get">default</span> Standard envelope with <code>data</code> object (used when omitted)</div>
 <div class="endpoint"><span class="method method-get">compact</span> <code>summary</code>, <code>change_detected</code>, <code>findings</code> at top level</div>
@@ -23,17 +80,19 @@
 <div class="endpoint"><span class="method method-get">findings_only</span> Findings object only</div>
 <div class="endpoint"><span class="method method-get">minimal</span> <code>event</code>, <code>task_id</code>, <code>summary</code>, <code>change_detected</code></div>
 
-<pre><code>{
-  "task": {
-    "description": "...",
-    "output_webhook": "https://your-app.com/hook",
-    "output_format": "flat"
-  }
-}</code></pre>
+<h2 class="dash-section-title">Delivery headers</h2>
+<p>Every delivery includes:</p>
+<ul style="color:var(--muted);margin-bottom:1rem;padding-left:1.25rem">
+  <li><code>Content-Type: application/json</code></li>
+  <li><code>User-Agent: Meerkat/1.0</code></li>
+  <li><code>X-Meerkat-Event</code> — event type (e.g. <code>run_completed</code>)</li>
+</ul>
+<p>Your default webhook headers are merged on top when using <code>output_webhook: "default"</code>.</p>
 
-<p>Custom instruction example: <code>"Return only status and eta as snake_case keys"</code></p>
+<h2 class="dash-section-title">Retries</h2>
+<p>Failed deliveries are retried with backoff. Inspect delivery history on a task's <strong>Webhook events</strong> tab or via <code>GET /tasks/:id/events</code>.</p>
 
-<h2>Retries</h2>
-<p>Failed deliveries are retried with backoff. Check <code>GET /tasks/:id/events</code> for delivery history.</p>
-
-<p><%= link_to "Tasks API →", docs_section_path("tasks") %></p>
+<p class="api-footer-links">
+  <%= link_to "Tasks dashboard →", docs_dashboard_tasks_path %>
+  · <%= link_to "Tasks API →", docs_section_path("tasks") %>
+</p>

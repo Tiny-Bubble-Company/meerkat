@@ -8,10 +8,20 @@ class DocsController < ApplicationController
   def show
     @section = resolve_section
     return if load_api_keys_section == :halt
-    nil if load_llm_provider_section == :halt
+    return if load_llm_provider_section == :halt
+    nil if load_webhooks_section == :halt
   end
 
   private
+
+  def load_webhooks_section
+    return :continue unless @section == "webhooks"
+
+    require_customer!
+    return :halt if performed?
+
+    :continue
+  end
 
   def load_llm_provider_section
     return :continue unless @section == "llm-provider"

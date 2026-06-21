@@ -8,7 +8,7 @@ module DocsHelper
     "authentication" => { label: "Authentication", interactive: false },
     "task-types" => { label: "Task types", interactive: false },
     "tasks" => { label: "Tasks API", interactive: false },
-    "webhooks" => { label: "Webhooks", interactive: false },
+    "webhooks" => { label: "Webhooks", interactive: true },
     "reference" => { label: "OpenAPI", interactive: false }
   }.freeze
 

@@ -1,0 +1,87 @@
+<h1>Task #<%= @task.id %></h1>
+<p class="lede"><%= @task.description %></p>
+
+<div class="dash-actions">
+  <% if @task.active? %>
+    <%= button_to "Run now", run_docs_dashboard_task_path(@task), method: :post, class: "btn btn-primary" %>
+  <% end %>
+  <%= link_to "← All tasks", docs_dashboard_tasks_path, class: "btn btn-ghost" %>
+</div>
+
+<dl class="dash-detail-grid">
+  <dt>Type</dt><dd><%= @task.task_type %></dd>
+  <dt>Status</dt><dd><%= dashboard_status_badge(@task.status) %></dd>
+  <dt>Frequency</dt><dd><%= @task.frequency || "—" %></dd>
+  <dt>Output webhook</dt><dd><%= dashboard_webhook_label(@task) %></dd>
+  <dt>Output format</dt><dd><%= @task.output_format || "default" %></dd>
+  <dt>Run count</dt><dd><%= @task.run_count %></dd>
+  <dt>Last run</dt><dd><%= dashboard_timestamp(@task.last_run_at) %></dd>
+  <dt>Next run</dt><dd><%= dashboard_timestamp(@task.next_run_at) %></dd>
+  <dt>Created</dt><dd><%= dashboard_timestamp(@task.created_at) %></dd>
+</dl>
+
+<h2 class="dash-section-title">Input params</h2>
+<%= dashboard_json(@task.input_params) %>
+
+<nav class="dash-tabs" aria-label="Task logs">
+  <%= link_to "Runs", docs_dashboard_task_path(@task, tab: "runs"), class: dashboard_task_tab_class(@tab, "runs") %>
+  <%= link_to "Webhook events", docs_dashboard_task_path(@task, tab: "events"), class: dashboard_task_tab_class(@tab, "events") %>
+</nav>
+
+<% if @tab == "runs" %>
+  <div class="dash-table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Status</th>
+          <th>Change</th>
+          <th>Started</th>
+          <th>Finished</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @runs.each do |run| %>
+          <tr>
+            <td><code>#<%= run.id %></code></td>
+            <td><%= dashboard_status_badge(run.status) %></td>
+            <td><%= run.change_detected ? "yes" : "no" %></td>
+            <td><%= dashboard_timestamp(run.started_at) %></td>
+            <td><%= dashboard_timestamp(run.finished_at) %></td>
+            <td><%= link_to "View", docs_dashboard_task_run_path(run) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+  <% if @runs.empty? %>
+    <p>No runs yet.</p>
+  <% end %>
+<% else %>
+  <div class="dash-table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Type</th>
+          <th>Webhook</th>
+          <th>At</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @events.each do |event| %>
+          <tr>
+            <td><code>#<%= event.id %></code></td>
+            <td><%= event.event_type %></td>
+            <td><%= dashboard_webhook_status(event) %></td>
+            <td><%= dashboard_timestamp(event.created_at) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+  <% if @events.empty? %>
+    <p>No events yet.</p>
+  <% end %>
+<% end %>

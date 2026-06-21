@@ -1,0 +1,110 @@
+<h1>Tasks</h1>
+<p class="lede">All tasks registered for your account. Create one-off or recurring tasks and inspect runs from the detail page.</p>
+
+<h2 class="dash-section-title">Create task</h2>
+<%= form_with url: docs_dashboard_tasks_path, scope: :task, class: "dash-form" do |f| %>
+  <div class="field">
+    <%= f.label :task_type, "Task type", class: "form-label" %>
+    <%= f.select :task_type, Task::TASK_TYPES.map { |t| [t.humanize, t] }, {}, class: "form-input", data: { task_type_toggle: true } %>
+  </div>
+
+  <div class="field">
+    <%= f.label :description, "Description", class: "form-label" %>
+    <%= f.text_area :description, required: true, rows: 3, placeholder: "Monitor DHL tracking and report status changes", class: "form-input" %>
+  </div>
+
+  <div class="field">
+    <%= f.label :input_params_json, "Input params (JSON)", class: "form-label" %>
+    <%= f.text_area :input_params_json, required: true, rows: 4, class: "form-input", placeholder: '{ "courier_tracking_link": "https://..." }' %>
+  </div>
+
+  <div class="field" data-recurring-field>
+    <%= f.label :frequency, "Frequency", class: "form-label" %>
+    <%= f.text_field :frequency, placeholder: "every 2 hours", class: "form-input" %>
+    <p class="field-hint">Required for recurring tasks. Natural language or cron.</p>
+  </div>
+
+  <div class="field">
+    <%= f.label :output_webhook, "Output webhook", class: "form-label" %>
+    <%= f.text_field :output_webhook, value: @task.output_webhook, placeholder: "https://your-app.com/hook or default", class: "form-input" %>
+    <p class="field-hint">
+      Use <code>default</code> to deliver to your
+      <%= link_to "account default webhook", docs_section_path("webhooks") %>.
+    </p>
+  </div>
+
+  <div class="field">
+    <%= f.label :output_format, "Output format", class: "form-label" %>
+    <%= f.text_field :output_format, placeholder: "default", class: "form-input" %>
+  </div>
+
+  <div class="field">
+    <label class="dash-checkbox">
+      <%= f.check_box :run_immediately, { checked: true }, "1", "0" %>
+      Run immediately after create
+    </label>
+  </div>
+
+  <%= f.submit "Create task", class: "btn btn-primary" %>
+<% end %>
+
+<h2 class="dash-section-title">Your tasks</h2>
+
+<%= form_with url: docs_dashboard_tasks_path, method: :get, class: "dash-filters" do %>
+  <%= select_tag :status, options_for_select([["All statuses", ""]] + Task::STATUSES.map { |s| [s, s] }, params[:status]), class: "form-input" %>
+  <%= select_tag :task_type, options_for_select([["All types", ""]] + Task::TASK_TYPES.map { |t| [t, t] }, params[:task_type]), class: "form-input" %>
+  <%= submit_tag "Filter", class: "btn btn-ghost" %>
+<% end %>
+
+<div class="dash-table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Description</th>
+        <th>Type</th>
+        <th>Status</th>
+        <th>Webhook</th>
+        <th>Runs</th>
+        <th>Next run</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @tasks.each do |task| %>
+        <tr>
+          <td><code>#<%= task.id %></code></td>
+          <td class="dash-truncate"><%= task.description %></td>
+          <td><%= task.task_type %></td>
+          <td><%= dashboard_status_badge(task.status) %></td>
+          <td class="dash-truncate"><%= dashboard_webhook_label(task) %></td>
+          <td><%= task.run_count %></td>
+          <td><%= dashboard_timestamp(task.next_run_at) %></td>
+          <td><%= link_to "View", docs_dashboard_task_path(task) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<% if @tasks.empty? %>
+  <p>No tasks yet. Create one above or via the <%= link_to "Tasks API", docs_section_path("tasks") %>.</p>
+<% end %>
+
+<%= dashboard_pagination(@page, @per, @total) %>
+
+<script>
+  (function () {
+    var select = document.querySelector("[data-task-type-toggle]");
+    var recurringField = document.querySelector("[data-recurring-field]");
+    if (!select || !recurringField) return;
+
+    function sync() {
+      var recurring = select.value === "recurring";
+      recurringField.style.display = recurring ? "block" : "none";
+    }
+
+    select.addEventListener("change", sync);
+    sync();
+  })();
+</script>

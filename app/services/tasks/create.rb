@@ -22,6 +22,7 @@ module Tasks
 
     def call
       validate!
+      normalize_output_webhook!
 
       task = Task.create!(build_attributes)
 
@@ -53,6 +54,9 @@ module Tasks
       raise Error, "frequency is required for recurring tasks" if recurring? && @frequency.blank?
       raise Error, "frequency is not allowed for one_off tasks" if one_off? && @frequency.present?
       raise Error, "output_webhook is required" if @output_webhook.blank?
+      if Tasks::WebhookTarget.default_token?(@output_webhook) && !@customer&.default_webhook_configured?
+        raise Error, "default webhook is not configured for this account"
+      end
       OutputFormat.validate!(@output_format)
     rescue ArgumentError => e
       raise Error, e.message
@@ -89,6 +93,12 @@ module Tasks
 
     def one_off?
       @task_type == "one_off"
+    end
+
+    def normalize_output_webhook!
+      return if @output_webhook.present?
+
+      @output_webhook = Tasks::WebhookTarget::DEFAULT_TOKEN if @customer&.default_webhook_configured?
     end
   end
 end

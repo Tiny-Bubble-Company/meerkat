@@ -14,6 +14,8 @@ class Customer < ApplicationRecord
 
   normalizes :email, with: ->(email) { email.strip.downcase }
 
+  validate :default_output_webhook_format, if: -> { default_output_webhook.present? }
+
   def onboarding_completed?
     onboarding_completed_at.present?
   end
@@ -51,5 +53,24 @@ class Customer < ApplicationRecord
 
     key = llm_api_key
     "#{key.first(7)}…#{key.last(4)}"
+  end
+
+  def default_webhook_configured?
+    default_output_webhook.present?
+  end
+
+  def default_webhook_headers_json
+    JSON.pretty_generate(default_webhook_headers.presence || {})
+  end
+
+  private
+
+  def default_output_webhook_format
+    uri = URI.parse(default_output_webhook)
+    return if uri.is_a?(URI::HTTP) && uri.host.present?
+
+    errors.add(:default_output_webhook, "must be a valid http or https URL")
+  rescue URI::InvalidURIError
+    errors.add(:default_output_webhook, "must be a valid http or https URL")
   end
 end

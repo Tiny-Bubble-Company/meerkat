@@ -14,6 +14,7 @@ class Task < ApplicationRecord
   validates :input_params, presence: true
   validates :output_webhook, presence: true
   validates :frequency, presence: true, if: :recurring?
+  validate :output_webhook_target_valid
   validates :frequency_seconds, numericality: { greater_than: 0 }, allow_nil: true
   validates :frequency_seconds, presence: true, if: :recurring?
   validate :output_format_length
@@ -61,7 +62,22 @@ class Task < ApplicationRecord
     OutputFormat.custom_instruction?(output_format)
   end
 
+  def resolved_output_webhook
+    Tasks::WebhookTarget.for(self)[:url]
+  end
+
+  def uses_default_webhook?
+    Tasks::WebhookTarget.default_token?(output_webhook)
+  end
+
   private
+
+  def output_webhook_target_valid
+    return unless Tasks::WebhookTarget.default_token?(output_webhook)
+    return if customer&.default_webhook_configured?
+
+    errors.add(:output_webhook, "default webhook is not configured for this account")
+  end
 
   def output_format_length
     OutputFormat.validate!(output_format)

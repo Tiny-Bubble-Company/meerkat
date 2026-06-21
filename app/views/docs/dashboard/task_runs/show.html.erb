@@ -1,0 +1,46 @@
+<h1>Run #<%= @run.id %></h1>
+<p class="lede">
+  Task <%= link_to "##{@run.task_id}", docs_dashboard_task_path(@run.task, tab: "runs") %> —
+  <%= @run.task.description %>
+</p>
+
+<dl class="dash-detail-grid">
+  <dt>Status</dt><dd><%= dashboard_status_badge(@run.status) %></dd>
+  <dt>Change detected</dt><dd><%= @run.change_detected ? "yes" : "no" %></dd>
+  <dt>Started</dt><dd><%= dashboard_timestamp(@run.started_at) %></dd>
+  <dt>Finished</dt><dd><%= dashboard_timestamp(@run.finished_at) %></dd>
+</dl>
+
+<% if @run.error.present? %>
+  <h2 class="dash-section-title">Error</h2>
+  <%= dashboard_json({ "error" => @run.error }) %>
+<% end %>
+
+<h2 class="dash-section-title">Structured output</h2>
+<%= dashboard_json(@run.structured_output.presence || {}) %>
+
+<h2 class="dash-section-title">Events</h2>
+<div class="dash-table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Type</th>
+        <th>Webhook</th>
+        <th>At</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @events.each do |event| %>
+        <tr>
+          <td><code>#<%= event.id %></code></td>
+          <td><%= event.event_type %></td>
+          <td><%= dashboard_webhook_status(event) %></td>
+          <td><%= dashboard_timestamp(event.created_at) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<p><%= link_to "← All runs", docs_dashboard_task_runs_path %></p>

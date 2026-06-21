@@ -57,7 +57,7 @@
         </p>
 
         <div class="mt-9 flex flex-wrap items-center gap-3">
-          <%= link_to marketing_signup_path, class: "group inline-flex items-center gap-2 bg-primary px-5 py-3 font-mono text-[13px] font-semibold uppercase tracking-wider text-primary-foreground transition hover:brightness-110 glow-amber" do %>
+          <%= link_to marketing_signup_path, marketing_signup_link_options(class: "group inline-flex items-center gap-2 bg-primary px-5 py-3 font-mono text-[13px] font-semibold uppercase tracking-wider text-primary-foreground transition hover:brightness-110 glow-amber") do %>
             <%= customer_signed_in? ? marketing_signup_label : "Sign up free" %>
             <span class="transition group-hover:translate-x-0.5">→</span>
           <% end %>
@@ -201,7 +201,7 @@
       <% end %>
     </div>
     <div class="mt-10 flex flex-wrap gap-3">
-      <%= link_to "Start onboarding →", marketing_signup_path, class: "rounded-md bg-primary px-5 py-3 font-mono text-[12px] font-semibold uppercase tracking-wider text-primary-foreground transition hover:brightness-110" %>
+      <%= link_to "Start onboarding →", marketing_signup_path, marketing_signup_link_options(class: "rounded-md bg-primary px-5 py-3 font-mono text-[12px] font-semibold uppercase tracking-wider text-primary-foreground transition hover:brightness-110") %>
       <%= link_to "LLM provider setup", marketing_docs_section_path("llm-provider"), class: "rounded-md border border-border bg-card px-5 py-3 font-mono text-[12px] uppercase tracking-wider transition hover:border-primary/40" %>
     </div>
   </div>
@@ -292,7 +292,7 @@
             </li>
           <% end %>
         </ul>
-        <%= link_to "Sign up free →", marketing_signup_path, class: "mt-8 inline-flex w-fit items-center gap-2 rounded-md bg-primary px-5 py-3 font-mono text-[12px] font-semibold uppercase tracking-wider text-primary-foreground transition hover:brightness-110 glow-amber" %>
+        <%= link_to "Sign up free →", marketing_signup_path, marketing_signup_link_options(class: "mt-8 inline-flex w-fit items-center gap-2 rounded-md bg-primary px-5 py-3 font-mono text-[12px] font-semibold uppercase tracking-wider text-primary-foreground transition hover:brightness-110 glow-amber") %>
       </div>
     </div>
   </div>
@@ -429,7 +429,7 @@
       Or deploy the open source version yourself — same API, your infrastructure.
     </p>
     <div class="mt-10 flex flex-wrap justify-center gap-3">
-      <%= link_to marketing_signup_label, marketing_signup_path, class: "rounded-md bg-primary px-6 py-3.5 font-mono text-sm font-semibold text-primary-foreground transition hover:brightness-110 glow-amber" %>
+      <%= link_to marketing_signup_label, marketing_signup_path, marketing_signup_link_options(class: "rounded-md bg-primary px-6 py-3.5 font-mono text-sm font-semibold text-primary-foreground transition hover:brightness-110 glow-amber") %>
       <%= link_to "Read the docs", marketing_docs_path, class: "rounded-md border border-border bg-card px-6 py-3.5 font-mono text-sm font-semibold transition hover:border-primary/40" %>
       <%= link_to "★ Star on GitHub", github_repo_url, class: "rounded-md border border-border bg-card px-6 py-3.5 font-mono text-sm font-semibold transition hover:border-primary/40", target: "_blank", rel: "noopener" %>
     </div>

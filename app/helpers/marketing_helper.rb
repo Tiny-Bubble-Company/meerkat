@@ -40,6 +40,18 @@ module MarketingHelper
     end
   end
 
+  def brand_home_url
+    marketing_site_host? ? root_path : meerkat_website_url
+  end
+
+  def marketing_signup_link_options(**html_options)
+    if marketing_site_host?
+      html_options[:target] = "_blank"
+      html_options[:rel] = "noopener noreferrer"
+    end
+    html_options
+  end
+
   def marketing_docs_path
     marketing_site_host? ? cloud_app_url("/docs") : docs_path
   end

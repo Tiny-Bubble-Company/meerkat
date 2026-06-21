@@ -24,7 +24,7 @@
     </h1>
     <p class="mt-6 max-w-2xl text-[17px] leading-relaxed text-muted-foreground"><%= @page[:intro] %></p>
     <div class="mt-8 flex flex-wrap items-center gap-3">
-      <%= link_to marketing_signup_label, marketing_signup_path, class: "bg-primary px-5 py-3 font-mono text-[13px] font-semibold uppercase tracking-wider text-primary-foreground transition hover:brightness-110" %>
+      <%= link_to marketing_signup_label, marketing_signup_path, marketing_signup_link_options(class: "bg-primary px-5 py-3 font-mono text-[13px] font-semibold uppercase tracking-wider text-primary-foreground transition hover:brightness-110") %>
       <%= link_to "Read docs", marketing_docs_path, class: "border border-border bg-card/60 px-5 py-3 font-mono text-[13px] font-semibold uppercase tracking-wider text-foreground transition hover:border-primary/50" %>
       <%= link_to "Quickstart →", marketing_docs_section_path("quickstart"), class: "border border-border bg-card/60 px-5 py-3 font-mono text-[13px] font-semibold uppercase tracking-wider text-foreground transition hover:border-primary/50" %>
     </div>
@@ -48,7 +48,7 @@
     <h2 class="mt-4 font-serif text-3xl tracking-tight">POST /api/v1/tasks</h2>
     <pre class="mt-6 overflow-x-auto rounded-xl border border-border bg-card p-6 font-mono text-[12.5px] leading-relaxed text-foreground/90"><%= @page[:code].strip %></pre>
     <div class="mt-6 flex flex-wrap gap-3">
-      <%= link_to "Create account →", marketing_signup_path, class: "rounded-md bg-primary px-4 py-2.5 font-mono text-[12px] font-semibold uppercase tracking-wider text-primary-foreground transition hover:brightness-110" %>
+      <%= link_to "Create account →", marketing_signup_path, marketing_signup_link_options(class: "rounded-md bg-primary px-4 py-2.5 font-mono text-[12px] font-semibold uppercase tracking-wider text-primary-foreground transition hover:brightness-110") %>
       <%= link_to "Task types docs", marketing_docs_section_path("task-types"), class: "rounded-md border border-border bg-card px-4 py-2.5 font-mono text-[12px] uppercase tracking-widest transition hover:border-primary/40" %>
     </div>
   </div>
@@ -74,7 +74,7 @@
     <h2 class="font-serif text-3xl tracking-tight">Ready to ship your first webhook?</h2>
     <p class="mx-auto mt-4 max-w-xl text-muted-foreground">Sign up, connect your LLM key in onboarding, and register a task in under five minutes.</p>
     <div class="mt-8 flex flex-wrap justify-center gap-3">
-      <%= link_to marketing_signup_label, marketing_signup_path, class: "rounded-md bg-primary px-6 py-3 font-mono text-sm font-semibold text-primary-foreground transition hover:brightness-110 glow-amber" %>
+      <%= link_to marketing_signup_label, marketing_signup_path, marketing_signup_link_options(class: "rounded-md bg-primary px-6 py-3 font-mono text-sm font-semibold text-primary-foreground transition hover:brightness-110 glow-amber") %>
       <%= link_to "Self-host on GitHub", github_repo_url, class: "rounded-md border border-border bg-card px-6 py-3 font-mono text-sm font-semibold transition hover:border-primary/40", target: "_blank", rel: "noopener" %>
     </div>
   </div>

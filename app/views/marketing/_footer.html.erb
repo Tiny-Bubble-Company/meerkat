@@ -2,7 +2,7 @@
   <div class="mx-auto max-w-7xl px-6">
     <div class="flex flex-col items-start justify-between gap-8 md:flex-row md:items-center">
       <div>
-        <%= render "shared/brand_logo", url: root_path, variant: "marketing" %>
+        <%= render "shared/brand_logo", url: brand_home_url, variant: "marketing" %>
         <p class="mt-3 max-w-xs font-mono text-[11px] text-muted-foreground">
           Open source agentic task API. Webhook-native. BYOK. MIT licensed.
         </p>
@@ -13,7 +13,7 @@
           <div class="text-[10px] uppercase tracking-widest text-primary">Product</div>
           <ul class="mt-3 space-y-2">
             <li><%= link_to "Docs", marketing_docs_path, class: "text-muted-foreground transition hover:text-foreground" %></li>
-            <li><%= link_to "Cloud", cloud_app_url("/signup"), class: "text-muted-foreground transition hover:text-foreground" %></li>
+            <li><%= link_to "Cloud", cloud_app_url("/signup"), marketing_signup_link_options(class: "text-muted-foreground transition hover:text-foreground") %></li>
             <li><%= link_to "Self-host", root_path(anchor: "deploy"), class: "text-muted-foreground transition hover:text-foreground" %></li>
           </ul>
         </div>
@@ -32,7 +32,7 @@
             <li><%= link_to "Package tracking", package_tracking_path, class: "text-muted-foreground transition hover:text-foreground" %></li>
             <li><%= link_to "Site monitoring", website_monitoring_path, class: "text-muted-foreground transition hover:text-foreground" %></li>
             <li><%= link_to "Agent webhooks", agent_webhooks_path, class: "text-muted-foreground transition hover:text-foreground" %></li>
-            <li><%= link_to "Sign up", marketing_signup_path, class: "text-muted-foreground transition hover:text-foreground" %></li>
+            <li><%= link_to "Sign up", marketing_signup_path, marketing_signup_link_options(class: "text-muted-foreground transition hover:text-foreground") %></li>
           </ul>
         </div>
       </div>

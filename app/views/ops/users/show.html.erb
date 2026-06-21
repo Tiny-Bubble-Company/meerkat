@@ -1,0 +1,72 @@
+<% content_for :title, "#{@user.email} — Meerkat Ops" %>
+
+<h1><%= @user.email %></h1>
+<p class="lede">Customer #<%= @user.id %></p>
+
+<dl class="detail-grid">
+  <dt>Name</dt><dd><%= @user.name.presence || "—" %></dd>
+  <dt>Company</dt><dd><%= @user.company.presence || "—" %></dd>
+  <dt>LLM provider</dt><dd><%= @user.llm_provider_label || "—" %></dd>
+  <dt>LLM model</dt><dd><%= @user.resolved_llm_model %></dd>
+  <dt>LLM key hint</dt><dd><%= @user.llm_key_hint || "—" %></dd>
+  <dt>Onboarding</dt><dd><%= @user.onboarding_completed? ? ops_status_badge("active") : ops_status_badge("pending") %></dd>
+  <dt>Onboarding completed</dt><dd><%= ops_timestamp(@user.onboarding_completed_at) %></dd>
+  <dt>Signed up</dt><dd><%= ops_timestamp(@user.created_at) %></dd>
+  <dt>Updated</dt><dd><%= ops_timestamp(@user.updated_at) %></dd>
+</dl>
+
+<h2>API keys</h2>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Prefix</th>
+        <th>Last used</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @api_keys.each do |key| %>
+        <tr>
+          <td class="mono">#<%= key.id %></td>
+          <td><%= key.name %></td>
+          <td class="mono"><%= key.token_prefix %>…</td>
+          <td><%= ops_timestamp(key.last_used_at) %></td>
+          <td><%= key.revoked_at ? ops_status_badge("archived") : ops_status_badge("active") %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<h2>Recent tasks</h2>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Description</th>
+        <th>Type</th>
+        <th>Status</th>
+        <th>Runs</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @tasks.each do |task| %>
+        <tr>
+          <td class="mono">#<%= task.id %></td>
+          <td class="truncate"><%= task.description %></td>
+          <td><%= task.task_type %></td>
+          <td><%= ops_status_badge(task.status) %></td>
+          <td><%= task.run_count %></td>
+          <td><%= link_to "View", ops_task_path(task) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<p><%= link_to "← All users", ops_users_path %></p>

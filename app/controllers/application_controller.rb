@@ -1,7 +1,14 @@
 # frozen_string_literal: true
 
 class ApplicationController < ActionController::Base
-  helper_method :current_customer, :customer_signed_in?, :api_base_url
+  include CloudRouting
+  include OpsHost
+  include DeployHelper
+
+  helper_method :current_customer, :customer_signed_in?, :api_base_url,
+                :marketing_site_host?, :cloud_app_host?, :ops_host?, :cloud_app_url,
+                :meerkat_cloud_url, :meerkat_website_url, :github_repo_url,
+                :current_admin_user, :admin_signed_in?
 
   protect_from_forgery with: :exception
 

@@ -4,7 +4,7 @@
 
 Register async agent tasks in plain English. Meerkat executes them on a schedule or on demand and POSTs structured findings to your webhook — without you building schedulers, LLM tool loops, or webhook plumbing yourself.
 
-> **Self-host** with Docker, Render, or Fly.io — or use **[Meerkat Cloud](https://meerkat.dev)** (same API, no workers to run).
+> **Self-host** with Docker, Render, or Fly.io — or use **[Meerkat Cloud](https://meerkatagents.com)** (same API, no workers to run).
 
 <p align="center">
   <a href="https://render.com/deploy?repo=https://github.com/Tiny-Bubble-Company/meerkat">
@@ -572,4 +572,4 @@ Meerkat is built on **[rails-agents](https://github.com/your-org/rails-agents)**
 
 MIT — see [LICENSE](LICENSE).
 
-Self-host for free. For managed hosting with no queue ops, visit [Meerkat Cloud](https://meerkat.dev).
+Self-host for free. For managed hosting with no queue ops, visit [Meerkat Cloud](https://meerkatagents.com).

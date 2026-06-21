@@ -1,0 +1,4 @@
+meerkatagents.com, www.meerkatagents.com, cloud.meerkatagents.com, ops.meerkatagents.com {
+	encode gzip zstd
+	reverse_proxy web:80
+}

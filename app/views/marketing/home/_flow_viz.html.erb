@@ -1,0 +1,90 @@
+<section class="border-b border-border py-28">
+  <div class="mx-auto max-w-7xl px-6">
+    <div class="max-w-2xl">
+      <p class="font-mono text-[11px] uppercase tracking-[0.3em] text-primary">06 · Architecture</p>
+      <h2 class="mt-6 font-serif text-5xl leading-[1.05] tracking-tight">
+        Your app <span class="italic text-muted-foreground">↔</span> Meerkat <span class="italic text-muted-foreground">↔</span> LLMs.
+      </h2>
+      <p class="mt-6 max-w-md leading-relaxed text-muted-foreground">
+        A task moves through three actors. You register it, Meerkat schedules and orchestrates,
+        an LLM (your key) executes, and a signed webhook lands back at your endpoint.
+      </p>
+    </div>
+
+    <% logs = [
+      "POST /api/v1/tasks → 201 task=tsk_8f2a",
+      "scheduler.enqueue tsk_8f2a in 0s",
+      "agent.boot provider=anthropic",
+      "tool.call fetch_url dhl.de/track?id=…",
+      "tool.call diff(prev, next) → changed",
+      "webhook.sign hmac-sha256",
+      "POST your-app.com/hook → 200 OK 142ms",
+      "task.next_run +2h"
+    ] %>
+
+    <div class="relative mt-14 overflow-hidden rounded-2xl border border-border bg-card/60">
+      <div class="absolute inset-0 bg-grid opacity-30"></div>
+      <div class="absolute inset-0" style="background: var(--gradient-glow)"></div>
+
+      <div class="relative grid gap-4 px-6 py-10 md:grid-cols-3 md:gap-8 md:px-10 md:py-14">
+        <% [
+          ["01 · client", "Your app", "POST /api/v1/tasks", ['"description": "watch URL"', '"output_webhook": "/hook"'], "left", false],
+          ["02 · infra", "Meerkat", "schedule · orchestrate · sign", ["queue → worker → agent.run()", "retries · idempotency · hmac"], "center", true],
+          ["03 · model", "LLMs (BYOK)", "anthropic · openai · openrouter · grok", ["tool.call fetch_url(...)", "tool.call diff(prev, next)"], "right", false]
+        ].each do |tag, name, sub, lines, align, highlight| %>
+          <div class="relative z-10 flex flex-col gap-3 <%= align == "center" ? "text-center" : (align == "right" ? "md:text-right" : "md:text-left") %>">
+            <span class="font-mono text-[10px] uppercase tracking-[0.25em] text-primary"><%= tag %></span>
+            <div class="relative rounded-xl border bg-background/70 px-5 py-5 backdrop-blur <%= highlight ? "border-primary/50" : "border-border" %>" <%= highlight ? 'style="box-shadow: var(--shadow-glow)"' : "" %>>
+              <div class="font-serif text-2xl leading-tight"><%= name %></div>
+              <div class="mt-1 font-mono text-[11px] uppercase tracking-widest text-muted-foreground"><%= sub %></div>
+              <div class="mt-4 space-y-1.5 border-t border-border/60 pt-3 font-mono text-[11.5px] text-muted-foreground">
+                <% lines.each do |line| %>
+                  <div class="truncate"><span class="text-primary/70">›</span> <%= line %></div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <svg class="pointer-events-none absolute inset-0 hidden h-full w-full md:block" preserveAspectRatio="none" viewBox="0 0 1000 320">
+          <defs>
+            <linearGradient id="wire" x1="0" x2="1">
+              <stop offset="0%" stop-color="oklch(0.75 0.135 85 / 0)"></stop>
+              <stop offset="50%" stop-color="oklch(0.75 0.135 85 / 0.8)"></stop>
+              <stop offset="100%" stop-color="oklch(0.75 0.135 85 / 0)"></stop>
+            </linearGradient>
+          </defs>
+          <path d="M 220 130 C 350 130, 400 130, 500 130" fill="none" stroke="url(#wire)" stroke-width="1.2" class="flow-line"></path>
+          <path d="M 500 200 C 400 200, 350 200, 220 200" fill="none" stroke="url(#wire)" stroke-width="1.2" class="flow-line-rev"></path>
+          <path d="M 500 130 C 600 130, 650 130, 780 130" fill="none" stroke="url(#wire)" stroke-width="1.2" class="flow-line"></path>
+          <path d="M 780 200 C 650 200, 600 200, 500 200" fill="none" stroke="url(#wire)" stroke-width="1.2" class="flow-line-rev"></path>
+          <circle cx="160" cy="165" r="38" fill="oklch(0.75 0.135 85 / 0.12)" class="node-pulse"></circle>
+          <circle cx="500" cy="165" r="38" fill="oklch(0.88 0.1 90 / 0.12)" class="node-pulse node-pulse-delay"></circle>
+          <circle cx="840" cy="165" r="38" fill="oklch(0.75 0.135 85 / 0.12)" class="node-pulse node-pulse-delay-2"></circle>
+        </svg>
+      </div>
+
+      <div class="relative border-t border-border bg-background/50">
+        <div class="flex items-center justify-between px-6 py-2.5 md:px-10">
+          <span class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">tail -f meerkat.log</span>
+          <span class="flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-primary">
+            <span class="h-1.5 w-1.5 rounded-full bg-primary pulse-ring"></span>
+            live
+          </span>
+        </div>
+        <div class="relative h-24 overflow-hidden border-t border-border/60">
+          <div class="pointer-events-none absolute inset-x-0 top-0 z-10 h-6 bg-gradient-to-b from-card to-transparent"></div>
+          <div class="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-6 bg-gradient-to-t from-card to-transparent"></div>
+          <div class="log-scroll px-6 md:px-10">
+            <% (logs + logs).each_with_index do |log, i| %>
+              <div class="flex gap-4 py-1 font-mono text-[12px] leading-relaxed">
+                <span class="shrink-0 text-muted-foreground/60"><%= format("%02d", i) %>:<%= format("%02d", (i * 7) % 60) %></span>
+                <span class="text-foreground/80"><%= log %></span>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

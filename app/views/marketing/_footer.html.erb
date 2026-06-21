@@ -1,0 +1,57 @@
+<footer class="py-14">
+  <div class="mx-auto max-w-7xl px-6">
+    <div class="flex flex-col items-start justify-between gap-8 md:flex-row md:items-center">
+      <div>
+        <%= link_to root_path, class: "flex items-center gap-2" do %>
+          <div class="relative h-7 w-7">
+            <div class="absolute inset-0 rounded-md bg-gradient-to-br from-primary to-accent"></div>
+            <div class="absolute inset-[3px] flex items-center justify-center rounded-[5px] bg-background">
+              <span class="font-mono text-[11px] font-bold text-primary">mk</span>
+            </div>
+          </div>
+          <span class="font-mono text-[15px] font-semibold tracking-tight">meerkat</span>
+        <% end %>
+        <p class="mt-3 max-w-xs font-mono text-[11px] text-muted-foreground">
+          Open source agentic task API. Webhook-native. BYOK. MIT licensed.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-3 gap-12 font-mono text-[12px]">
+        <div>
+          <div class="text-[10px] uppercase tracking-widest text-primary">Product</div>
+          <ul class="mt-3 space-y-2">
+            <li><%= link_to "Docs", marketing_docs_path, class: "text-muted-foreground transition hover:text-foreground" %></li>
+            <li><%= link_to "Cloud", cloud_app_url("/signup"), class: "text-muted-foreground transition hover:text-foreground" %></li>
+            <li><%= link_to "Self-host", root_path(anchor: "deploy"), class: "text-muted-foreground transition hover:text-foreground" %></li>
+          </ul>
+        </div>
+        <div>
+          <div class="text-[10px] uppercase tracking-widest text-primary">Open source</div>
+          <ul class="mt-3 space-y-2">
+            <li><%= link_to "GitHub", github_repo_url, class: "text-muted-foreground transition hover:text-foreground", target: "_blank", rel: "noopener" %></li>
+            <li><%= link_to "MIT license", github_repo_url, class: "text-muted-foreground transition hover:text-foreground", target: "_blank", rel: "noopener" %></li>
+            <li><%= link_to "Issues", github_issues_url, class: "text-muted-foreground transition hover:text-foreground", target: "_blank", rel: "noopener" %></li>
+            <li><%= link_to "Changelog", github_releases_url, class: "text-muted-foreground transition hover:text-foreground", target: "_blank", rel: "noopener" %></li>
+          </ul>
+        </div>
+        <div>
+          <div class="text-[10px] uppercase tracking-widest text-primary">Use cases</div>
+          <ul class="mt-3 space-y-2">
+            <li><%= link_to "Package tracking", package_tracking_path, class: "text-muted-foreground transition hover:text-foreground" %></li>
+            <li><%= link_to "Site monitoring", website_monitoring_path, class: "text-muted-foreground transition hover:text-foreground" %></li>
+            <li><%= link_to "Agent webhooks", agent_webhooks_path, class: "text-muted-foreground transition hover:text-foreground" %></li>
+            <li><%= link_to "Sign up", marketing_signup_path, class: "text-muted-foreground transition hover:text-foreground" %></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-12 flex flex-wrap items-center justify-between gap-4 border-t border-border pt-6 font-mono text-[11px] text-muted-foreground">
+      <span>© <%= Time.current.year %> Meerkat Labs · Open source · MIT</span>
+      <span class="flex items-center gap-2">
+        <span class="h-1.5 w-1.5 rounded-full bg-primary pulse-ring"></span>
+        All systems operational
+      </span>
+    </div>
+  </div>
+</footer>

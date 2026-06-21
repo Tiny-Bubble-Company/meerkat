@@ -27,7 +27,7 @@ module Tools
 
     def default_headers
       {
-        "User-Agent" => "Meerkat/1.0 (+https://github.com/meerkat)",
+        "User-Agent" => "Meerkat/1.0 (+https://github.com/Tiny-Bubble-Company/meerkat)",
         "Accept" => "text/html,application/xhtml+xml"
       }
     end

@@ -1,0 +1,93 @@
+<% content_for :title, "Task ##{@task.id} — Meerkat Ops" %>
+
+<h1>Task #<%= @task.id %></h1>
+<p class="lede"><%= @task.description %></p>
+
+<dl class="detail-grid">
+  <dt>Customer</dt>
+  <dd>
+    <% if @task.customer %>
+      <%= link_to @task.customer.email, ops_user_path(@task.customer) %>
+    <% else %>
+      —
+    <% end %>
+  </dd>
+  <dt>Type</dt><dd><%= @task.task_type %></dd>
+  <dt>Status</dt><dd><%= ops_status_badge(@task.status) %></dd>
+  <dt>Description</dt><dd><%= @task.description %></dd>
+  <dt>Frequency</dt><dd><%= @task.frequency || "—" %></dd>
+  <dt>Frequency (sec)</dt><dd><%= @task.frequency_seconds || "—" %></dd>
+  <dt>Output webhook</dt><dd class="mono"><%= @task.output_webhook %></dd>
+  <dt>Output format</dt><dd><%= @task.output_format || "default" %></dd>
+  <dt>Run count</dt><dd><%= @task.run_count %></dd>
+  <dt>Consecutive failures</dt><dd><%= @task.consecutive_failures %></dd>
+  <dt>Last run</dt><dd><%= ops_timestamp(@task.last_run_at) %></dd>
+  <dt>Next run</dt><dd><%= ops_timestamp(@task.next_run_at) %></dd>
+  <dt>Created</dt><dd><%= ops_timestamp(@task.created_at) %></dd>
+  <dt>Updated</dt><dd><%= ops_timestamp(@task.updated_at) %></dd>
+</dl>
+
+<h2>Input params</h2>
+<%= ops_json(@task.input_params) %>
+
+<h2>Metadata</h2>
+<%= ops_json(@task.metadata) %>
+
+<h2>Last known state</h2>
+<%= ops_json(@task.last_known_state) %>
+
+<h2>Recent runs</h2>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Status</th>
+        <th>Change</th>
+        <th>Started</th>
+        <th>Finished</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @runs.each do |run| %>
+        <tr>
+          <td class="mono">#<%= run.id %></td>
+          <td><%= ops_status_badge(run.status) %></td>
+          <td><%= run.change_detected ? "yes" : "no" %></td>
+          <td><%= ops_timestamp(run.started_at) %></td>
+          <td><%= ops_timestamp(run.finished_at) %></td>
+          <td><%= link_to "View", ops_task_run_path(run) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<h2>Recent events</h2>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Type</th>
+        <th>Webhook</th>
+        <th>At</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @events.each do |event| %>
+        <tr>
+          <td class="mono">#<%= event.id %></td>
+          <td><%= event.event_type %></td>
+          <td><%= ops_webhook_status(event) %></td>
+          <td><%= ops_timestamp(event.created_at) %></td>
+          <td><%= link_to "View", ops_webhook_delivery_path(event) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<p><%= link_to "← All tasks", ops_tasks_path %></p>

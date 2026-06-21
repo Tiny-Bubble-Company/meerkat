@@ -1,6 +1,6 @@
 # Meerkat — Lovable website update brief
 
-Use this document to refresh the marketing site at **https://meerkat.dev** so it matches the open-source product and BYOK Cloud offering.
+Use this document to refresh the marketing site at **https://meerkatagents.com** so it matches the open-source product and BYOK Cloud offering.
 
 ---
 
@@ -11,7 +11,7 @@ Set these in **GitHub → your repo → ⚙️ About**:
 | Field | Value |
 |-------|-------|
 | **Description** | Open source webhook-native API for async agent tasks — monitor URLs, track deliveries, BYOK LLM keys. |
-| **Website** | `https://meerkat.dev` |
+| **Website** | `https://meerkatagents.com` |
 | **Topics** | `agents`, `webhooks`, `api`, `rails`, `open-source`, `monitoring`, `llm`, `automation`, `task-scheduler` |
 
 ---
@@ -28,7 +28,7 @@ Set these in **GitHub → your repo → ⚙️ About**:
 
 **Subhead:** Open source API for developers who need agents to monitor links, track deliveries, and report findings — without building schedulers, webhook plumbing, or LLM tool loops.
 
-**Primary CTA:** Sign up free → `https://meerkat.dev/signup` (or your Cloud URL)
+**Primary CTA:** Sign up free → `https://meerkatagents.com/signup` (or your Cloud URL)
 
 **Secondary CTAs:**
 - Read the docs
@@ -124,13 +124,13 @@ Replace `Tiny-Bubble-Company/meerkat` with the real GitHub path before publishin
 - `POST /api/v1/tasks/:id/run` — Trigger a run
 - `GET /api/v1/tasks/:id/events` — Webhook delivery history
 
-Link to full docs: `/docs` or `https://meerkat.dev/docs`
+Link to full docs: `/docs` or `https://meerkatagents.com/docs`
 
 ---
 
 ## Footer
 
-Open source agentic task API · [GitHub](https://github.com/Tiny-Bubble-Company/meerkat) · [Meerkat Cloud](https://meerkat.dev)
+Open source agentic task API · [GitHub](https://github.com/Tiny-Bubble-Company/meerkat) · [Meerkat Cloud](https://meerkatagents.com)
 
 ---
 
@@ -148,7 +148,7 @@ Open source agentic task API · [GitHub](https://github.com/Tiny-Bubble-Company/
 ## URLs checklist before go-live
 
 - [ ] GitHub repo URL updated in all deploy buttons
-- [ ] `meerkat.dev` points to Cloud signup + docs
+- [ ] `meerkatagents.com` points to Cloud signup + docs
 - [ ] GitHub About description + website link set
 - [ ] Render deploy tested (`RAILS_MASTER_KEY` set in dashboard)
 - [ ] Fly deploy tested (`fly secrets set RAILS_MASTER_KEY=...`)

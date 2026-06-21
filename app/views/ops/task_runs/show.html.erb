@@ -1,0 +1,61 @@
+<% content_for :title, "Run ##{@run.id} — Meerkat Ops" %>
+
+<h1>Run #<%= @run.id %></h1>
+<p class="lede"><%= @run.task.description %></p>
+
+<dl class="detail-grid">
+  <dt>Task</dt><dd><%= link_to "Task ##{@run.task_id}", ops_task_path(@run.task) %></dd>
+  <dt>Customer</dt>
+  <dd><%= link_to(@run.task.customer.email, ops_user_path(@run.task.customer)) if @run.task.customer %></dd>
+  <dt>Status</dt><dd><%= ops_status_badge(@run.status) %></dd>
+  <dt>Change detected</dt><dd><%= @run.change_detected ? "yes" : "no" %></dd>
+  <dt>Started</dt><dd><%= ops_timestamp(@run.started_at) %></dd>
+  <dt>Finished</dt><dd><%= ops_timestamp(@run.finished_at) %></dd>
+  <dt>Created</dt><dd><%= ops_timestamp(@run.created_at) %></dd>
+</dl>
+
+<% if @run.error.present? %>
+  <h2>Error</h2>
+  <pre><code><%= @run.error %></code></pre>
+<% end %>
+
+<h2>Output</h2>
+<% if @run.output.present? %>
+  <pre><code><%= @run.output %></code></pre>
+<% else %>
+  <p style="color:var(--muted)">No text output.</p>
+<% end %>
+
+<h2>Structured output</h2>
+<%= ops_json(@run.structured_output) %>
+
+<h2>Usage</h2>
+<%= ops_json(@run.usage) %>
+
+<h2>Events</h2>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Type</th>
+        <th>Webhook</th>
+        <th>At</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @events.each do |event| %>
+        <tr>
+          <td class="mono">#<%= event.id %></td>
+          <td><%= event.event_type %></td>
+          <td><%= ops_webhook_status(event) %></td>
+          <td><%= ops_timestamp(event.created_at) %></td>
+          <td><%= link_to "View", ops_webhook_delivery_path(event) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<p><%= link_to "← All runs", ops_task_runs_path %></p>

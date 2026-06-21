@@ -1,0 +1,51 @@
+<% content_for :title, "Webhook ##{@delivery.id} — Meerkat Ops" %>
+
+<h1>Webhook event #<%= @delivery.id %></h1>
+<p class="lede"><%= @delivery.event_type %> · <%= @delivery.webhook_url %></p>
+
+<dl class="detail-grid">
+  <dt>Event type</dt><dd><%= @delivery.event_type %></dd>
+  <dt>Task</dt><dd><%= link_to "Task ##{@delivery.task_id}", ops_task_path(@delivery.task) %></dd>
+  <dt>Run</dt>
+  <dd><%= @delivery.task_run_id ? link_to("Run ##{@delivery.task_run_id}", ops_task_run_path(@delivery.task_run_id)) : "—" %></dd>
+  <dt>Webhook URL</dt><dd class="mono"><%= @delivery.webhook_url %></dd>
+  <dt>Response code</dt><dd><%= @delivery.webhook_response_code || "—" %></dd>
+  <dt>Delivered at</dt><dd><%= ops_timestamp(@delivery.webhook_delivered_at) %></dd>
+  <dt>Created</dt><dd><%= ops_timestamp(@delivery.created_at) %></dd>
+</dl>
+
+<% if @delivery.event_type == "webhook_failed" || @delivery.payload["error"].present? %>
+  <h2>Error</h2>
+  <pre><code><%= @delivery.payload["error"] || "Unknown error" %></code></pre>
+<% end %>
+
+<h2>Payload</h2>
+<%= ops_json(@delivery.payload) %>
+
+<% if @related.any? %>
+  <h2>Related webhook events (same run)</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Type</th>
+          <th>Status</th>
+          <th>At</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @related.each do |event| %>
+          <tr>
+            <td class="mono">#<%= event.id %></td>
+            <td><%= event.event_type %></td>
+            <td><%= ops_webhook_status(event) %></td>
+            <td><%= ops_timestamp(event.created_at) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>
+
+<p><%= link_to "← All webhooks", ops_webhook_deliveries_path %></p>

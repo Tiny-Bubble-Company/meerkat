@@ -1,0 +1,18 @@
+<% content_for :title, "Sign in — Meerkat Ops" %>
+
+<h1>Meerkat Ops</h1>
+<p>Sign in to the operations admin panel.</p>
+
+<%= form_with url: ops_login_path, scope: :session do |f| %>
+  <div class="field">
+    <%= f.label :email, "Email" %>
+    <%= f.email_field :email, required: true, autofocus: true, autocomplete: "username" %>
+  </div>
+
+  <div class="field">
+    <%= f.label :password, "Password" %>
+    <%= f.password_field :password, required: true, autocomplete: "current-password" %>
+  </div>
+
+  <%= f.submit "Sign in", class: "btn btn-primary", style: "width:100%" %>
+<% end %>

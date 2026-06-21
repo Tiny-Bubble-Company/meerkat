@@ -1,7 +1,25 @@
 Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
 
+  constraints(OpsHostConstraint) do
+    scope module: :ops, as: :ops do
+      root "dashboard#index"
+      get "login", to: "sessions#new"
+      post "login", to: "sessions#create"
+      delete "logout", to: "sessions#destroy"
+
+      resources :users, only: %i[index show]
+      resources :tasks, only: %i[index show]
+      resources :task_runs, only: %i[index show], path: "runs"
+      resources :webhook_deliveries, only: %i[index show], path: "webhooks"
+    end
+  end
+
   root "pages#home"
+
+  get "use-cases/package-tracking", to: "use_cases#show", defaults: { slug: "package-tracking" }, as: :package_tracking
+  get "use-cases/website-monitoring", to: "use_cases#show", defaults: { slug: "website-monitoring" }, as: :website_monitoring
+  get "use-cases/agent-webhooks", to: "use_cases#show", defaults: { slug: "agent-webhooks" }, as: :agent_webhooks
 
   get "signup", to: "signup#new"
   post "signup", to: "signup#create"

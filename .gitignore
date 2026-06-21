@@ -12,6 +12,7 @@
 /.env.local
 /.env.*.local
 !.env.example
+/.env.production
 
 # Ignore all logfiles and tempfiles.
 /log/*

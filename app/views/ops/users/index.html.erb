@@ -1,0 +1,44 @@
+<% content_for :title, "Users — Meerkat Ops" %>
+
+<h1>Users</h1>
+<p class="lede">All customers signed up on Meerkat Cloud.</p>
+
+<%= form_with url: ops_users_path, method: :get, class: "filters" do %>
+  <%= text_field_tag :q, params[:q], placeholder: "Search email…" %>
+  <%= submit_tag "Search", class: "btn btn-ghost" %>
+<% end %>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Email</th>
+        <th>Name</th>
+        <th>Company</th>
+        <th>LLM</th>
+        <th>Onboarding</th>
+        <th>Tasks</th>
+        <th>Signed up</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @users.each do |user| %>
+        <tr>
+          <td class="mono">#<%= user.id %></td>
+          <td><%= user.email %></td>
+          <td><%= user.name.presence || "—" %></td>
+          <td><%= user.company.presence || "—" %></td>
+          <td><%= user.llm_provider_label || "—" %></td>
+          <td><%= user.onboarding_completed? ? ops_status_badge("active") : ops_status_badge("pending") %></td>
+          <td><%= user.tasks.count %></td>
+          <td><%= ops_timestamp(user.created_at) %></td>
+          <td><%= link_to "View", ops_user_path(user) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<%= ops_pagination(@page, @per, @total) %>

@@ -1,0 +1,93 @@
+<header class="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl">
+  <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+    <%= link_to root_path, class: "flex items-center gap-2.5", title: "Meerkat — Home" do %>
+      <img src="/marketing/meerkat-logo.png" alt="Meerkat logo" width="32" height="32" class="h-8 w-8 rounded-lg object-cover">
+      <span class="font-mono text-[19px] font-semibold tracking-tight">Meerkat</span>
+    <% end %>
+
+    <nav aria-label="Primary" class="hidden lg:block">
+      <ul class="flex items-center gap-7">
+        <li class="relative">
+          <button
+            type="button"
+            data-use-cases-toggle
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-controls="use-cases-menu"
+            class="flex items-center gap-1 font-mono text-[12px] uppercase tracking-wider text-muted-foreground transition hover:text-foreground"
+          >
+            Use cases
+            <svg aria-hidden="true" width="10" height="10" viewBox="0 0 10 10">
+              <path d="M2 4l3 3 3-3" stroke="currentColor" stroke-width="1.25" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </button>
+          <div id="use-cases-menu" data-use-cases-menu class="hidden absolute left-0 top-full z-50 min-w-[280px] pt-2">
+            <ul class="rounded-lg border border-border/60 bg-background/95 p-1.5 shadow-lg backdrop-blur-xl">
+              <% MarketingHelper::USE_CASES.each do |uc| %>
+                <li>
+                  <%= link_to public_send(uc[:path]), title: uc[:description], class: "block rounded-md px-3 py-2 hover:bg-card" do %>
+                    <span class="block font-mono text-[12px] uppercase tracking-wider text-foreground"><%= uc[:label] %></span>
+                    <span class="mt-0.5 block text-[12px] text-muted-foreground"><%= uc[:description] %></span>
+                  <% end %>
+                </li>
+              <% end %>
+            </ul>
+          </div>
+        </li>
+        <li>
+          <%= link_to "Docs", marketing_docs_path, class: "font-mono text-[12px] uppercase tracking-wider text-muted-foreground transition hover:text-foreground", title: "Meerkat documentation" %>
+        </li>
+        <li>
+          <%= link_to "GitHub", github_repo_url, class: "font-mono text-[12px] uppercase tracking-wider text-muted-foreground transition hover:text-foreground", title: "Meerkat on GitHub", target: "_blank", rel: "noopener external" %>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="flex items-center gap-3">
+      <% if customer_signed_in? %>
+        <%= button_to "Sign out", logout_path, method: :delete, class: "hidden font-mono text-[12px] uppercase tracking-wider text-muted-foreground transition hover:text-foreground sm:inline" %>
+      <% end %>
+      <%= link_to marketing_nav_cta_label, marketing_signup_path, class: "rounded-md bg-primary px-3.5 py-2 font-mono text-[12px] font-semibold uppercase tracking-wider text-primary-foreground transition hover:brightness-110", title: "Create your Meerkat account" %>
+      <button
+        type="button"
+        data-marketing-nav-toggle
+        aria-label="Toggle menu"
+        aria-expanded="false"
+        aria-controls="mobile-nav"
+        class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border lg:hidden"
+      >
+        <span class="sr-only">Menu</span>
+        <div class="flex flex-col gap-1">
+          <span class="block h-px w-4 bg-foreground"></span>
+          <span class="block h-px w-4 bg-foreground"></span>
+          <span class="block h-px w-4 bg-foreground"></span>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <nav id="mobile-nav" aria-label="Mobile" class="hidden border-t border-border/60 bg-background/95 backdrop-blur-xl lg:hidden">
+    <div class="mx-auto flex max-w-7xl flex-col gap-3 px-6 py-4">
+      <div>
+        <p class="px-2 pb-1 font-mono text-[11px] uppercase tracking-wider text-muted-foreground/70">Use cases</p>
+        <ul class="flex flex-col gap-1">
+          <% MarketingHelper::USE_CASES.each do |uc| %>
+            <li>
+              <%= link_to public_send(uc[:path]), title: uc[:description], class: "block rounded-md px-2 py-2 hover:bg-card" do %>
+                <span class="block font-mono text-[12px] uppercase tracking-wider text-foreground"><%= uc[:label] %></span>
+                <span class="block text-[12px] text-muted-foreground"><%= uc[:description] %></span>
+              <% end %>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+      <ul class="flex flex-col gap-1 border-t border-border/60 pt-3">
+        <li><%= link_to "Docs", marketing_docs_path, class: "block rounded-md px-2 py-2 font-mono text-[12px] uppercase tracking-wider text-muted-foreground hover:bg-card hover:text-foreground" %></li>
+        <li><%= link_to "GitHub", github_repo_url, class: "block rounded-md px-2 py-2 font-mono text-[12px] uppercase tracking-wider text-muted-foreground hover:bg-card hover:text-foreground", target: "_blank", rel: "noopener external" %></li>
+        <% if customer_signed_in? %>
+          <li><%= button_to "Sign out", logout_path, method: :delete, class: "block w-full rounded-md px-2 py-2 text-left font-mono text-[12px] uppercase tracking-wider text-muted-foreground hover:bg-card hover:text-foreground" %></li>
+        <% end %>
+      </ul>
+    </div>
+  </nav>
+</header>

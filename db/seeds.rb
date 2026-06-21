@@ -28,3 +28,22 @@ if RailsAgents.config.api_key_for(RailsAgents.config.default_provider).present?
 else
   puts "Skipping demo seeds — set ANTHROPIC_API_KEY to create live tasks"
 end
+
+ops_email = ENV.fetch("OPS_ADMIN_EMAIL", "ops@meerkatagents.com")
+ops_password = ENV["OPS_ADMIN_PASSWORD"].presence
+ops_password ||= "changeme123!" unless Rails.env.production?
+
+admin = AdminUser.find_by(email: ops_email)
+if admin.nil?
+  if ops_password.blank?
+    puts "Skipping ops admin seed — set OPS_ADMIN_PASSWORD"
+  else
+    AdminUser.create!(email: ops_email, name: "Ops Admin", password: ops_password)
+    puts "Created ops admin #{ops_email}"
+  end
+elsif ENV["OPS_ADMIN_PASSWORD"].present?
+  admin.update!(password: ops_password)
+  puts "Updated ops admin password for #{ops_email}"
+else
+  puts "Ops admin #{ops_email} already exists"
+end

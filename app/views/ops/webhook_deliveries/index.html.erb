@@ -1,0 +1,51 @@
+<% content_for :title, "Webhooks — Meerkat Ops" %>
+
+<h1>Webhook deliveries</h1>
+<p class="lede">Outbound webhook attempts, successes, and failures.</p>
+
+<%= form_with url: ops_webhook_deliveries_path, method: :get, class: "filters" do %>
+  <%= select_tag :delivery_status, options_for_select([
+    ["All deliveries", ""],
+    ["Success", "success"],
+    ["Failed", "failed"]
+  ], params[:delivery_status]) %>
+  <%= select_tag :event_type, options_for_select([
+    ["All webhook events", ""]
+  ] + Ops::WebhookDeliveriesController::WEBHOOK_EVENT_TYPES.map { |t| [t, t] }, params[:event_type]) %>
+  <%= submit_tag "Filter", class: "btn btn-ghost" %>
+<% end %>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Event</th>
+        <th>Task</th>
+        <th>Run</th>
+        <th>Status</th>
+        <th>Code</th>
+        <th>URL</th>
+        <th>At</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @deliveries.each do |event| %>
+        <tr>
+          <td class="mono">#<%= event.id %></td>
+          <td><%= event.event_type %></td>
+          <td class="truncate"><%= event.task.description %></td>
+          <td class="mono"><%= event.task_run_id ? "##{event.task_run_id}" : "—" %></td>
+          <td><%= ops_webhook_status(event) %></td>
+          <td><%= event.webhook_response_code || "—" %></td>
+          <td class="truncate mono"><%= event.webhook_url %></td>
+          <td><%= ops_timestamp(event.webhook_delivered_at || event.created_at) %></td>
+          <td><%= link_to "View", ops_webhook_delivery_path(event) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<%= ops_pagination(@page, @per, @total) %>

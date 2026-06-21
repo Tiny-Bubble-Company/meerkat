@@ -22,7 +22,7 @@ class SignupController < ApplicationController
 
   def destroy
     reset_session
-    redirect_to root_path, notice: "Signed out."
+    redirect_to meerkat_website_url, notice: "Signed out.", allow_other_host: true
   end
 
   private

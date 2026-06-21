@@ -6,11 +6,11 @@ module DeployHelper
   end
 
   def meerkat_website_url
-    ENV.fetch("MEERKAT_WEBSITE_URL", "https://meerkat.dev")
+    ENV.fetch("MEERKAT_WEBSITE_URL", "https://meerkatagents.com")
   end
 
   def meerkat_cloud_url
-    ENV.fetch("MEERKAT_CLOUD_URL", "https://meerkat.dev")
+    ENV.fetch("MEERKAT_CLOUD_URL", "https://cloud.meerkatagents.com")
   end
 
   def deploy_to_render_url

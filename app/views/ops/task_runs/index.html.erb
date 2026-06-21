@@ -1,0 +1,42 @@
+<% content_for :title, "Runs — Meerkat Ops" %>
+
+<h1>Runs</h1>
+<p class="lede">Task execution history across the platform.</p>
+
+<%= form_with url: ops_task_runs_path, method: :get, class: "filters" do %>
+  <%= select_tag :status, options_for_select([["All statuses", ""]] + TaskRun::STATUSES.map { |s| [s, s] }, params[:status]) %>
+  <%= submit_tag "Filter", class: "btn btn-ghost" %>
+<% end %>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Task</th>
+        <th>Customer</th>
+        <th>Status</th>
+        <th>Change</th>
+        <th>Started</th>
+        <th>Finished</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @runs.each do |run| %>
+        <tr>
+          <td class="mono">#<%= run.id %></td>
+          <td class="truncate"><%= run.task.description %></td>
+          <td><%= run.task.customer&.email || "—" %></td>
+          <td><%= ops_status_badge(run.status) %></td>
+          <td><%= run.change_detected ? "yes" : "no" %></td>
+          <td><%= ops_timestamp(run.started_at) %></td>
+          <td><%= ops_timestamp(run.finished_at) %></td>
+          <td><%= link_to "View", ops_task_run_path(run) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<%= ops_pagination(@page, @per, @total) %>

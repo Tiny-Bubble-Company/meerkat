@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= content_for?(:title) ? yield(:title) : "Ops — Meerkat" %></title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <%= render "shared/theme" %>
+    <style>
+      .ops-shell {
+        display: grid;
+        grid-template-columns: 240px 1fr;
+        min-height: 100vh;
+      }
+
+      @media (max-width: 768px) {
+        .ops-shell { grid-template-columns: 1fr; }
+        .ops-sidebar { border-bottom: 1px solid var(--border); height: auto; position: static; }
+      }
+
+      .ops-sidebar {
+        background: var(--surface);
+        border-right: 1px solid var(--border);
+        padding: 1.5rem 0;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow-y: auto;
+      }
+
+      .sidebar-logo {
+        display: block;
+        padding: 0 1.25rem 1.5rem;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text);
+        text-decoration: none;
+        letter-spacing: -0.03em;
+      }
+
+      .sidebar-logo em { color: var(--accent); font-style: normal; }
+      .sidebar-tag {
+        display: block;
+        padding: 0 1.25rem;
+        margin-top: -1rem;
+        margin-bottom: 1.25rem;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--muted);
+      }
+
+      .sidebar-group {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+      }
+
+      .nav-link {
+        display: block;
+        padding: 0.65rem 1.25rem;
+        color: var(--muted);
+        font-size: 1.0625rem;
+        text-decoration: none;
+        border-left: 3px solid transparent;
+      }
+
+      .nav-link:hover { color: var(--text); background: var(--surface-2); text-decoration: none; }
+      .nav-link.active { color: var(--accent); border-left-color: var(--accent); background: var(--surface-2); }
+
+      .ops-content {
+        padding: 2rem 2.5rem 4rem;
+        max-width: 1200px;
+      }
+
+      @media (max-width: 768px) {
+        .ops-content { padding: 1.5rem; }
+      }
+
+      .ops-content h1 {
+        font-size: var(--font-xl);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.5rem;
+      }
+
+      .ops-content .lede {
+        font-size: var(--font-lg);
+        color: var(--muted);
+        margin-bottom: 2rem;
+        max-width: 65ch;
+      }
+
+      .ops-content h2 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin: 2rem 0 0.75rem;
+      }
+
+      .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .stat-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1.25rem;
+      }
+
+      .stat-card .label {
+        font-size: 0.8125rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        margin-bottom: 0.35rem;
+      }
+
+      .stat-card .value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text);
+      }
+
+      .stat-card.danger .value { color: #f87171; }
+
+      .badge {
+        display: inline-block;
+        padding: 0.2rem 0.55rem;
+        border-radius: 999px;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        text-transform: lowercase;
+      }
+
+      .badge-success { background: #14532d; color: #86efac; }
+      .badge-danger { background: #450a0a; color: #fca5a5; }
+      .badge-warn { background: #422006; color: #fcd34d; }
+      .badge-muted { background: var(--surface-2); color: var(--muted); }
+
+      .table-wrap {
+        overflow-x: auto;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        margin: 1rem 0 1.5rem;
+      }
+
+      .table-wrap table { margin: 0; }
+      .table-wrap tr:hover td { background: var(--surface-2); }
+
+      .detail-grid {
+        display: grid;
+        grid-template-columns: 160px 1fr;
+        gap: 0.65rem 1rem;
+        margin: 1.5rem 0;
+        font-size: 1rem;
+      }
+
+      .detail-grid dt { color: var(--muted); }
+      .detail-grid dd { word-break: break-word; }
+
+      .json-block {
+        margin: 1rem 0;
+        max-height: 420px;
+        overflow: auto;
+      }
+
+      .error-text { color: #fca5a5; font-size: 0.9375rem; }
+
+      .filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+        align-items: center;
+      }
+
+      .filters select {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.55rem 0.85rem;
+        color: var(--text);
+        font-size: 0.9375rem;
+      }
+
+      .pagination {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        margin-top: 1rem;
+        color: var(--muted);
+        font-size: 0.9375rem;
+      }
+
+      .page-link { color: var(--accent); text-decoration: none; }
+      .page-link:hover { text-decoration: underline; }
+
+      .sidebar-footer {
+        padding: 1.5rem 1.25rem;
+        margin-top: 1rem;
+        border-top: 1px solid var(--border);
+        font-size: 0.9375rem;
+      }
+
+      .login-shell {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 2rem;
+      }
+
+      .login-card {
+        width: 100%;
+        max-width: 420px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 2rem;
+      }
+
+      .login-card h1 { margin-bottom: 0.35rem; }
+      .login-card p { color: var(--muted); margin-bottom: 1.5rem; }
+
+      .field { margin-bottom: 1rem; }
+      .field input[type="password"] {
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        color: var(--text);
+        font-size: 1rem;
+        width: 100%;
+      }
+
+      .mono { font-family: var(--mono); font-size: 0.9375rem; }
+      .truncate { max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    </style>
+  </head>
+  <body>
+    <% if controller_name == "sessions" && action_name == "new" %>
+      <div class="login-shell">
+        <div class="login-card">
+          <% if flash[:notice] %><div class="flash flash-notice"><%= flash[:notice] %></div><% end %>
+          <% if flash[:alert] %><div class="flash flash-alert"><%= flash[:alert] %></div><% end %>
+          <%= yield %>
+        </div>
+      </div>
+    <% else %>
+      <div class="ops-shell">
+        <aside class="ops-sidebar">
+          <%= link_to ops_root_path, class: "sidebar-logo" do %>Meer<em>kat</em><% end %>
+          <span class="sidebar-tag">Operations</span>
+
+          <div class="sidebar-group">Overview</div>
+          <%= ops_nav_link(:root, "Dashboard") %>
+
+          <div class="sidebar-group">Data</div>
+          <%= ops_nav_link(:users, "Users") %>
+          <%= ops_nav_link(:tasks, "Tasks") %>
+          <%= ops_nav_link(:runs, "Runs") %>
+          <%= ops_nav_link(:webhooks, "Webhooks") %>
+
+          <div class="sidebar-footer">
+            <% if admin_signed_in? %>
+              <p style="color:var(--muted);margin-bottom:0.5rem"><%= current_admin_user.email %></p>
+              <%= button_to "Sign out", ops_logout_path, method: :delete, class: "btn btn-ghost", style: "width:100%;font-size:0.9375rem" %>
+            <% else %>
+              <%= link_to "Sign in →", ops_login_path %>
+            <% end %>
+          </div>
+        </aside>
+
+        <main class="ops-content">
+          <% if flash[:notice] %><div class="flash flash-notice"><%= flash[:notice] %></div><% end %>
+          <% if flash[:alert] %><div class="flash flash-alert"><%= flash[:alert] %></div><% end %>
+
+          <%= yield %>
+        </main>
+      </div>
+    <% end %>
+  </body>
+</html>

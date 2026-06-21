@@ -1,28 +1,38 @@
 <% content_for :title, "Sign up — Meerkat" %>
+<% content_for :meta_description, "Create your Meerkat account, get an API key, and start registering async agent tasks with webhook delivery." %>
 
-<main class="home-main">
-  <div class="signup-box">
-    <h1>Sign up</h1>
-    <p class="sub">Get an API key. Manage keys in the dashboard. Create tasks via the API.</p>
+<%= render "marketing/site_nav" %>
 
-    <%= form_with url: signup_path, scope: :customer do |f| %>
-      <div class="field">
-        <%= f.label :email, "Email" %>
-        <%= f.email_field :email, required: true, autofocus: true, placeholder: "you@company.com" %>
+<main class="mx-auto max-w-lg px-6 py-20 lg:py-28">
+  <div class="rounded-2xl border border-border bg-card p-8" style="box-shadow: var(--shadow-card)">
+    <p class="font-mono text-[11px] uppercase tracking-[0.3em] text-primary">Get started</p>
+    <h1 class="mt-4 font-serif text-4xl tracking-tight">Sign up</h1>
+    <p class="mt-3 text-[15px] leading-relaxed text-muted-foreground">
+      Get an API key, connect your LLM provider, and register your first task in onboarding.
+    </p>
+
+    <%= form_with url: signup_path, scope: :customer, class: "mt-8 space-y-5" do |f| %>
+      <div>
+        <%= f.label :email, "Email", class: "mb-2 block font-mono text-[11px] uppercase tracking-wider text-muted-foreground" %>
+        <%= f.email_field :email, required: true, autofocus: true, placeholder: "you@company.com", class: "w-full rounded-md border border-border bg-background px-4 py-3 font-mono text-sm text-foreground outline-none ring-primary focus:ring-2" %>
       </div>
-      <div class="field">
-        <%= f.label :name, "Name" %>
-        <%= f.text_field :name, placeholder: "Your name" %>
+      <div>
+        <%= f.label :name, "Name", class: "mb-2 block font-mono text-[11px] uppercase tracking-wider text-muted-foreground" %>
+        <%= f.text_field :name, placeholder: "Your name", class: "w-full rounded-md border border-border bg-background px-4 py-3 font-mono text-sm text-foreground outline-none ring-primary focus:ring-2" %>
       </div>
-      <div class="field">
-        <%= f.label :company, "Company (optional)" %>
-        <%= f.text_field :company, placeholder: "Acme Inc." %>
+      <div>
+        <%= f.label :company, "Company (optional)", class: "mb-2 block font-mono text-[11px] uppercase tracking-wider text-muted-foreground" %>
+        <%= f.text_field :company, placeholder: "Acme Inc.", class: "w-full rounded-md border border-border bg-background px-4 py-3 font-mono text-sm text-foreground outline-none ring-primary focus:ring-2" %>
       </div>
-      <%= f.submit "Create account", class: "btn btn-primary", style: "width:100%" %>
+      <%= f.submit "Create account →", class: "w-full cursor-pointer rounded-md bg-primary px-5 py-3 font-mono text-[13px] font-semibold uppercase tracking-wider text-primary-foreground transition hover:brightness-110 glow-amber" %>
     <% end %>
 
-    <p style="margin-top:1.25rem;color:var(--muted);font-size:0.9375rem">
-      Already have a key? <%= link_to "Go to API keys", docs_section_path("api-keys") %>
+    <p class="mt-6 text-[14px] text-muted-foreground">
+      Already have a key?
+      <%= link_to "Go to API keys", docs_section_path("api-keys"), class: "text-primary hover:underline" %>
+      · <%= link_to "Read docs", docs_path, class: "text-primary hover:underline" %>
     </p>
   </div>
 </main>
+
+<%= render "marketing/footer" %>

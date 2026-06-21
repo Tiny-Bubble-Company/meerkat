@@ -1,0 +1,85 @@
+<% content_for :title, "Dashboard — Meerkat Ops" %>
+
+<h1>Dashboard</h1>
+<p class="lede">Platform overview for Meerkat Cloud.</p>
+
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="label">Users</div>
+    <div class="value"><%= @stats[:users] %></div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Tasks</div>
+    <div class="value"><%= @stats[:tasks] %></div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Runs</div>
+    <div class="value"><%= @stats[:runs] %></div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Webhook events</div>
+    <div class="value"><%= @stats[:webhook_events] %></div>
+  </div>
+  <div class="stat-card danger">
+    <div class="label">Failed runs</div>
+    <div class="value"><%= @stats[:failed_runs] %></div>
+  </div>
+  <div class="stat-card danger">
+    <div class="label">Failed webhooks</div>
+    <div class="value"><%= @stats[:failed_webhooks] %></div>
+  </div>
+</div>
+
+<h2>Recent runs</h2>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Task</th>
+        <th>Status</th>
+        <th>Started</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @recent_runs.each do |run| %>
+        <tr>
+          <td class="mono">#<%= run.id %></td>
+          <td class="truncate"><%= run.task.description %></td>
+          <td><%= ops_status_badge(run.status) %></td>
+          <td><%= ops_timestamp(run.started_at || run.created_at) %></td>
+          <td><%= link_to "View", ops_task_run_path(run) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<h2>Recent webhook deliveries</h2>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Task</th>
+        <th>Status</th>
+        <th>URL</th>
+        <th>At</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @recent_webhooks.each do |event| %>
+        <tr>
+          <td class="mono">#<%= event.id %></td>
+          <td class="truncate"><%= event.task.description %></td>
+          <td><%= ops_webhook_status(event) %></td>
+          <td class="truncate mono"><%= event.webhook_url %></td>
+          <td><%= ops_timestamp(event.webhook_delivered_at || event.created_at) %></td>
+          <td><%= link_to "View", ops_webhook_delivery_path(event) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

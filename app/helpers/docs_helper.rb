@@ -9,8 +9,19 @@ module DocsHelper
     "task-types" => { label: "Task types", interactive: false },
     "tasks" => { label: "Tasks API", interactive: false },
     "webhooks" => { label: "Webhooks", interactive: true },
-    "reference" => { label: "OpenAPI", interactive: false }
+    "reference" => { label: "OpenAPI", interactive: false },
+    "sdk-ruby" => { label: "Ruby", interactive: false },
+    "sdk-python" => { label: "Python", interactive: false },
+    "sdk-javascript" => { label: "JavaScript", interactive: false }
   }.freeze
+
+  SDK_PAGE_INDEX = [
+    { id: "installation", label: "Installation" },
+    { id: "quick-start", label: "Quick start" },
+    { id: "webhooks", label: "Verify webhooks" },
+    { id: "configuration", label: "Configuration" },
+    { id: "related", label: "Related" }
+  ].freeze
 
   TASKS_API_INDEX = [
     { id: "the-task-object", label: "The Task object" },

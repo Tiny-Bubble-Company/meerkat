@@ -1,0 +1,125 @@
+<h1>Ruby SDK</h1>
+<p class="lede">
+  Official Ruby client for Meerkat. Install <code>meerkat-ruby</code>, create tasks from Ruby or Rails,
+  and verify inbound webhooks without hand-rolling HTTP calls.
+</p>
+
+<% content_for :docs_page_index do %>
+  <%= render "docs/page_index", sections: DocsHelper::SDK_PAGE_INDEX %>
+<% end %>
+
+<section id="installation">
+  <h2>Installation</h2>
+  <p>Add to your Gemfile:</p>
+  <pre><code>gem "meerkat-ruby"</code></pre>
+  <p>Or install directly:</p>
+  <pre><code>gem install meerkat-ruby</code></pre>
+  <p>
+    Source and release notes:
+    <%= link_to "github.com/Tiny-Bubble-Company/meerkat-ruby", "https://github.com/Tiny-Bubble-Company/meerkat-ruby", target: "_blank", rel: "noopener" %>.
+  </p>
+</section>
+
+<section id="quick-start">
+  <h2>Quick start</h2>
+
+  <h3>1. Get an API key</h3>
+  <p>
+    <%= link_to "Sign up", signup_path %> or open <%= link_to "API Keys", docs_section_path("api-keys") %>.
+    You can also sign up programmatically:
+  </p>
+  <pre><code>require "meerkat"
+
+client = Meerkat::Client.new(base_url: "<%= api_base_url %>")
+result = client.signup.create(email: "you@company.com", name: "Your Name")
+api_key = result.dig("data", "api_key") # store securely — shown once</code></pre>
+
+  <h3>2. Create a task</h3>
+  <pre><code>client = Meerkat::Client.new(api_key: ENV["MEERKAT_API_KEY"])
+
+response = client.tasks.create(
+  task_type: "one_off",
+  description: "Fetch courier status and report findings",
+  input_params: { courier_tracking_link: "https://..." },
+  output_webhook: "https://your-app.com/webhooks/meerkat",
+  run_immediately: true
+)
+
+task = response["data"]</code></pre>
+
+  <h3>3. Trigger a run (optional)</h3>
+  <pre><code>client.tasks.run(task["id"], async: true)</code></pre>
+  <p>
+    See <%= link_to "Tasks API", docs_section_path("tasks") %> and
+    <%= link_to "Task types", docs_section_path("task-types") %> for full request options.
+  </p>
+</section>
+
+<section id="webhooks">
+  <h2>Verify webhooks</h2>
+  <p>
+    Every outbound POST is HMAC-SHA256 signed in the <code>X-Meerkat-Signature</code> header.
+    See <%= link_to "Webhooks", docs_section_path("webhooks") %> for payload shape and event types.
+  </p>
+  <pre><code>Meerkat::Webhooks.verify(
+  payload: request.raw_post,
+  signature: request.headers["X-Meerkat-Signature"],
+  secret: ENV["MEERKAT_WEBHOOK_SECRET"]
+)</code></pre>
+
+  <h3>Rails controller concern</h3>
+  <pre><code>class Webhooks::MeerkatController &lt; ApplicationController
+  include Meerkat::Rails::WebhookVerification
+
+  def create
+    payload = JSON.parse(request.raw_post)
+    # handle event: run_completed, status_changed, etc.
+    head :ok
+  end
+end</code></pre>
+</section>
+
+<section id="configuration">
+  <h2>Configuration</h2>
+
+  <p class="api-subheading">Environment variables</p>
+  <div class="api-table-wrap">
+    <table class="api-table">
+      <thead>
+        <tr>
+          <th>Variable</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><code>MEERKAT_API_KEY</code></td><td>API key from signup (<code>mk_...</code>)</td></tr>
+        <tr><td><code>MEERKAT_BASE_URL</code></td><td>API base URL (default: Meerkat Cloud)</td></tr>
+        <tr><td><code>MEERKAT_WEBHOOK_SECRET</code></td><td>Secret for verifying inbound webhooks</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Global config</h3>
+  <pre><code>Meerkat.configure do |config|
+  config.api_key = ENV["MEERKAT_API_KEY"]
+  config.base_url = ENV.fetch("MEERKAT_BASE_URL", Meerkat::Client::DEFAULT_BASE_URL)
+end
+
+Meerkat.configuration.client.tasks.list(status: "active")</code></pre>
+
+  <h3>Self-hosted instance</h3>
+  <pre><code>client = Meerkat::Client.new(
+  api_key: ENV["MEERKAT_API_KEY"],
+  base_url: "http://localhost:3000/api/v1"
+)</code></pre>
+</section>
+
+<section id="related" class="api-footer-links">
+  <h2>Related</h2>
+  <p>
+    <%= link_to "Python SDK →", docs_section_path("sdk-python") %>
+    · <%= link_to "JavaScript SDK →", docs_section_path("sdk-javascript") %>
+    · <%= link_to "Tasks API →", docs_section_path("tasks") %>
+    · <%= link_to "Webhooks →", docs_section_path("webhooks") %>
+  </p>
+</section>

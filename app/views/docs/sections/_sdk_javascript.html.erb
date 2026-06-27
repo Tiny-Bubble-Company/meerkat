@@ -1,0 +1,122 @@
+<h1>JavaScript SDK</h1>
+<p class="lede">
+  Official JavaScript/TypeScript client for Meerkat (<code>meerkat-js</code> on npm). Works in Node.js,
+  Bun, and Deno. Includes helpers for Express and Next.js webhook verification.
+</p>
+
+<% content_for :docs_page_index do %>
+  <%= render "docs/page_index", sections: DocsHelper::SDK_PAGE_INDEX %>
+<% end %>
+
+<section id="installation">
+  <h2>Installation</h2>
+  <pre><code>npm install meerkat-js</code></pre>
+  <p>
+    Source and release notes:
+    <%= link_to "github.com/Tiny-Bubble-Company/meerkat-javascript", "https://github.com/Tiny-Bubble-Company/meerkat-javascript", target: "_blank", rel: "noopener" %>.
+  </p>
+</section>
+
+<section id="quick-start">
+  <h2>Quick start</h2>
+
+  <h3>1. Get an API key</h3>
+  <p>
+    <%= link_to "Sign up", signup_path %> or open <%= link_to "API Keys", docs_section_path("api-keys") %>.
+    You can also sign up programmatically:
+  </p>
+  <pre><code>import { MeerkatClient } from "meerkat-js";
+
+const signupClient = new MeerkatClient({ baseUrl: "<%= api_base_url %>" });
+const result = await signupClient.signup.create({ email: "you@company.com", name: "Your Name" });
+const apiKey = result?.data.apiKey; // store securely — shown once</code></pre>
+
+  <h3>2. Create a task</h3>
+  <pre><code>import { MeerkatClient } from "meerkat-js";
+
+const client = new MeerkatClient({ apiKey: process.env.MEERKAT_API_KEY! });
+
+const { data: task } = await client.tasks.create({
+  taskType: "one_off",
+  description: "Fetch courier status and report findings",
+  inputParams: { courier_tracking_link: "https://..." },
+  outputWebhook: "https://your-app.com/webhooks/meerkat",
+  runImmediately: true,
+});</code></pre>
+
+  <h3>3. Trigger a run (optional)</h3>
+  <pre><code>await client.tasks.run(task.id, { async: true });</code></pre>
+  <p>
+    See <%= link_to "Tasks API", docs_section_path("tasks") %> and
+    <%= link_to "Task types", docs_section_path("task-types") %> for full request options.
+  </p>
+</section>
+
+<section id="webhooks">
+  <h2>Verify webhooks</h2>
+  <p>
+    Every outbound POST is HMAC-SHA256 signed in the <code>X-Meerkat-Signature</code> header.
+    See <%= link_to "Webhooks", docs_section_path("webhooks") %> for payload shape and event types.
+  </p>
+  <pre><code>import { verifyWebhook } from "meerkat-js";
+
+verifyWebhook({
+  payload: rawBody,
+  signature: req.headers["x-meerkat-signature"],
+  secret: process.env.MEERKAT_WEBHOOK_SECRET!,
+});</code></pre>
+
+  <h3>Express</h3>
+  <pre><code>import express from "express";
+import { meerkatWebhookMiddleware } from "meerkat-js/express";
+
+const app = express();
+
+app.post(
+  "/webhooks/meerkat",
+  express.raw({ type: "application/json" }),
+  meerkatWebhookMiddleware({ secret: process.env.MEERKAT_WEBHOOK_SECRET! }),
+  (req, res) => {
+    // req.meerkatPayload is parsed JSON
+    res.sendStatus(200);
+  }
+);</code></pre>
+</section>
+
+<section id="configuration">
+  <h2>Configuration</h2>
+
+  <p class="api-subheading">Environment variables</p>
+  <div class="api-table-wrap">
+    <table class="api-table">
+      <thead>
+        <tr>
+          <th>Variable</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><code>MEERKAT_API_KEY</code></td><td>API key from signup (<code>mk_...</code>)</td></tr>
+        <tr><td><code>MEERKAT_BASE_URL</code></td><td>API base URL (default: Meerkat Cloud)</td></tr>
+        <tr><td><code>MEERKAT_WEBHOOK_SECRET</code></td><td>Secret for verifying inbound webhooks</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Client options</h3>
+  <pre><code>const client = new MeerkatClient({
+  apiKey: process.env.MEERKAT_API_KEY,
+  baseUrl: "http://localhost:3000/api/v1", // self-hosted
+  timeoutMs: 30_000,
+});</code></pre>
+</section>
+
+<section id="related" class="api-footer-links">
+  <h2>Related</h2>
+  <p>
+    <%= link_to "Ruby SDK →", docs_section_path("sdk-ruby") %>
+    · <%= link_to "Python SDK →", docs_section_path("sdk-python") %>
+    · <%= link_to "Tasks API →", docs_section_path("tasks") %>
+    · <%= link_to "Webhooks →", docs_section_path("webhooks") %>
+  </p>
+</section>

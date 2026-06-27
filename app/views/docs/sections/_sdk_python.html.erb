@@ -1,0 +1,132 @@
+<h1>Python SDK</h1>
+<p class="lede">
+  Official Python client for Meerkat. Install <code>meerkat-python</code>, create tasks from scripts or
+  FastAPI/Django apps, and verify inbound webhooks with one helper.
+</p>
+
+<% content_for :docs_page_index do %>
+  <%= render "docs/page_index", sections: DocsHelper::SDK_PAGE_INDEX %>
+<% end %>
+
+<section id="installation">
+  <h2>Installation</h2>
+  <pre><code>pip install meerkat-python</code></pre>
+  <p>
+    Source and release notes:
+    <%= link_to "github.com/Tiny-Bubble-Company/meerkat-python", "https://github.com/Tiny-Bubble-Company/meerkat-python", target: "_blank", rel: "noopener" %>.
+  </p>
+</section>
+
+<section id="quick-start">
+  <h2>Quick start</h2>
+
+  <h3>1. Get an API key</h3>
+  <p>
+    <%= link_to "Sign up", signup_path %> or open <%= link_to "API Keys", docs_section_path("api-keys") %>.
+    You can also sign up programmatically:
+  </p>
+  <pre><code>from meerkat import Meerkat
+
+with Meerkat(base_url="<%= api_base_url %>") as client:
+    result = client.signup.create(email="you@company.com", name="Your Name")
+    api_key = result["data"]["api_key"]  # store securely — shown once</code></pre>
+
+  <h3>2. Create a task</h3>
+  <pre><code>from meerkat import Meerkat
+
+with Meerkat(api_key="mk_...") as client:
+    response = client.tasks.create(
+        task_type="one_off",
+        description="Fetch courier status and report findings",
+        input_params={"courier_tracking_link": "https://..."},
+        output_webhook="https://your-app.com/webhooks/meerkat",
+        run_immediately=True,
+    )
+    task = response["data"]</code></pre>
+
+  <h3>3. Trigger a run (optional)</h3>
+  <pre><code>    client.tasks.run(task["id"], async_=True)</code></pre>
+  <p>
+    See <%= link_to "Tasks API", docs_section_path("tasks") %> and
+    <%= link_to "Task types", docs_section_path("task-types") %> for full request options.
+  </p>
+</section>
+
+<section id="webhooks">
+  <h2>Verify webhooks</h2>
+  <p>
+    Every outbound POST is HMAC-SHA256 signed in the <code>X-Meerkat-Signature</code> header.
+    See <%= link_to "Webhooks", docs_section_path("webhooks") %> for payload shape and event types.
+  </p>
+  <pre><code>from meerkat import verify_webhook
+
+verify_webhook(
+    payload=raw_body,
+    signature=headers.get("X-Meerkat-Signature"),
+    secret=os.environ["MEERKAT_WEBHOOK_SECRET"],
+)</code></pre>
+
+  <h3>FastAPI</h3>
+  <pre><code>import os
+from fastapi import FastAPI, Header, HTTPException, Request
+from meerkat import verify_webhook
+
+app = FastAPI()
+
+@app.post("/webhooks/meerkat")
+async def meerkat_webhook(
+    request: Request,
+    x_meerkat_signature: str | None = Header(default=None),
+):
+    raw = await request.body()
+    try:
+        verify_webhook(
+            payload=raw,
+            signature=x_meerkat_signature,
+            secret=os.environ["MEERKAT_WEBHOOK_SECRET"],
+        )
+    except ValueError:
+        raise HTTPException(status_code=401, detail="Invalid signature")
+    # handle payload
+    return {"ok": True}</code></pre>
+</section>
+
+<section id="configuration">
+  <h2>Configuration</h2>
+
+  <p class="api-subheading">Environment variables</p>
+  <div class="api-table-wrap">
+    <table class="api-table">
+      <thead>
+        <tr>
+          <th>Variable</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><code>MEERKAT_API_KEY</code></td><td>API key from signup (<code>mk_...</code>)</td></tr>
+        <tr><td><code>MEERKAT_BASE_URL</code></td><td>API base URL (default: Meerkat Cloud)</td></tr>
+        <tr><td><code>MEERKAT_WEBHOOK_SECRET</code></td><td>Secret for verifying inbound webhooks</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Self-hosted instance</h3>
+  <pre><code>import os
+from meerkat import Meerkat
+
+client = Meerkat(
+    api_key=os.environ["MEERKAT_API_KEY"],
+    base_url="http://localhost:3000/api/v1",
+)</code></pre>
+</section>
+
+<section id="related" class="api-footer-links">
+  <h2>Related</h2>
+  <p>
+    <%= link_to "Ruby SDK →", docs_section_path("sdk-ruby") %>
+    · <%= link_to "JavaScript SDK →", docs_section_path("sdk-javascript") %>
+    · <%= link_to "Tasks API →", docs_section_path("tasks") %>
+    · <%= link_to "Webhooks →", docs_section_path("webhooks") %>
+  </p>
+</section>

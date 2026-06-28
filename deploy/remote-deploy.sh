@@ -13,7 +13,8 @@ fi
 chmod +x deploy/deploy.sh deploy/remote-deploy.sh
 
 echo "==> Building and restarting containers"
-./deploy/deploy.sh up -d --build web caddy
+./deploy/deploy.sh up -d --build web website
+./deploy/deploy.sh up -d --force-recreate caddy
 
 echo "==> Preparing databases (migrate)"
 ./deploy/deploy.sh exec -T web bin/rails db:prepare
@@ -26,7 +27,7 @@ docker image prune -f >/dev/null || true
 
 echo "==> Health checks"
 for i in 1 2 3 4 5 6 7 8 9 10; do
-  if curl -fsS https://cloud.meerkatagents.com/up >/dev/null && curl -fsS https://meerkatagents.com/up >/dev/null && curl -fsS https://ops.meerkatagents.com/up >/dev/null; then
+  if curl -fsS https://cloud.meerkatagents.com/up >/dev/null && curl -fsS https://meerkatagents.com/up >/dev/null && curl -fsS https://ops.meerkatagents.com/up >/dev/null && curl -fsS https://meerkatagents.com/blog >/dev/null; then
     break
   fi
   sleep 3
@@ -34,5 +35,6 @@ done
 curl -fsS https://cloud.meerkatagents.com/up >/dev/null
 curl -fsS https://meerkatagents.com/up >/dev/null
 curl -fsS https://ops.meerkatagents.com/up >/dev/null
+curl -fsS https://meerkatagents.com/blog >/dev/null
 
 echo "==> Deploy complete"

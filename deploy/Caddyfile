@@ -1,4 +1,17 @@
-meerkatagents.com, www.meerkatagents.com, cloud.meerkatagents.com, ops.meerkatagents.com {
+meerkatagents.com, www.meerkatagents.com {
+	encode gzip zstd
+
+	@rails path /docs* /signup /login /onboarding* /api/* /up
+	handle @rails {
+		reverse_proxy web:80
+	}
+
+	handle {
+		reverse_proxy website:3000
+	}
+}
+
+cloud.meerkatagents.com, ops.meerkatagents.com {
 	encode gzip zstd
 	reverse_proxy web:80
 }

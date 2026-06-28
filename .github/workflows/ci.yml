@@ -88,7 +88,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Sync application to Hetzner
-        uses: burnett01/rsync-deployments@7.0.1
+        uses: burnett01/rsync-deployments@9.0.0
         with:
           switches: -avzr --delete --exclude=.git --exclude=tmp/ --exclude=log/ --exclude=storage/ --exclude=.env --exclude=.env.production
           path: ./
@@ -98,7 +98,7 @@ jobs:
           remote_key: ${{ secrets.DEPLOY_SSH_KEY }}
 
       - name: Sync marketing website to Hetzner
-        uses: burnett01/rsync-deployments@7.0.1
+        uses: burnett01/rsync-deployments@9.0.0
         with:
           switches: -avzr --delete --exclude=.git --exclude=node_modules --exclude=dist --exclude=.output --exclude=.env*
           path: meerkat-website/

@@ -38,7 +38,7 @@ gem "rails_agents", path: "vendor/rails-agents"
 gem "faraday"
 
 # Parse natural-language and cron-style schedules
-gem "fugit", "~> 1.11"
+gem "fugit", "~> 1.13"
 
 group :development, :test do
   gem "dotenv-rails"

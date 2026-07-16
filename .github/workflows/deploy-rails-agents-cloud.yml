@@ -10,6 +10,7 @@ on:
     paths:
       - "deploy/Caddyfile"
       - "deploy/docker-compose.production.yml"
+      - "deploy/rails-agents-docs.nginx.conf"
       - ".github/workflows/deploy-rails-agents-cloud.yml"
 
 concurrency:
@@ -85,16 +86,6 @@ jobs:
           remote_user: ${{ secrets.DEPLOY_USER }}
           remote_key: ${{ secrets.DEPLOY_SSH_KEY }}
 
-      - name: Sync docs nginx config
-        uses: burnett01/rsync-deployments@7.0.1
-        with:
-          switches: -avzr
-          path: rails-agents/docs/nginx.conf
-          remote_path: /opt/meerkat-apps/rails-agents-site-nginx.conf
-          remote_host: ${{ secrets.DEPLOY_HOST }}
-          remote_user: ${{ secrets.DEPLOY_USER }}
-          remote_key: ${{ secrets.DEPLOY_SSH_KEY }}
-
       - name: Start docs nginx, cloud, reload Caddy
         uses: appleboy/ssh-action@v1.2.2
         with:
@@ -105,34 +96,15 @@ jobs:
           script: |
             set -euo pipefail
             mkdir -p /opt/meerkat-apps/rails-agents-site
-            # placeholder so nginx can start before first sync (rsync already ran)
             if [ ! -f /opt/meerkat-apps/rails-agents-site/index.html ]; then
               echo '<h1>Rails Agents</h1>' > /opt/meerkat-apps/rails-agents-site/index.html
             fi
-
-            # Ensure nginx try_files config is a real file (rsync of single files is flaky)
-            cat > /opt/meerkat-apps/rails-agents-site-nginx.conf <<'NGINX'
-server {
-    listen 80;
-    server_name _;
-    root /usr/share/nginx/html;
-    index index.html;
-    location / {
-        try_files $uri $uri.html $uri/ =404;
-    }
-    error_page 404 /404.html;
-    location = /up {
-        default_type text/plain;
-        return 200 'ok\n';
-    }
-}
-NGINX
+            cp /opt/meerkat-apps/meerkat/deploy/rails-agents-docs.nginx.conf /opt/meerkat-apps/rails-agents-site-nginx.conf
 
             cd /opt/meerkat-apps/meerkat
             ./deploy/deploy.sh up -d --force-recreate rails_agents_docs
             ./deploy/deploy.sh up -d web website caddy
 
-            # Ensure cloud env points at agents host
             if [ -f /opt/meerkat-apps/rails-agents-cloud/.env.production ]; then
               sed -i 's|cloud.meerkatagents.com/ra|agents.meerkatagents.com|g' /opt/meerkat-apps/rails-agents-cloud/.env.production || true
               sed -i 's|RAILS_AGENTS_DASHBOARD_URL=.*|RAILS_AGENTS_DASHBOARD_URL=https://agents.meerkatagents.com|' /opt/meerkat-apps/rails-agents-cloud/.env.production || true
@@ -147,6 +119,7 @@ NGINX
 
             echo "==> Public checks"
             curl -fsS https://agents.meerkatagents.com/up
-            curl -fsS -o /dev/null -w "%{http_code}\n" https://rails.meerkatagents.com/
+            curl -fsS -o /dev/null -w "rails_home:%{http_code}\n" https://rails.meerkatagents.com/
+            curl -fsS -o /dev/null -w "rails_guide:%{http_code}\n" https://rails.meerkatagents.com/guide/getting-started
             curl -fsS https://cloud.meerkatagents.com/up
             echo DONE

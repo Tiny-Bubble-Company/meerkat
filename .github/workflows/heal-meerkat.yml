@@ -1,0 +1,42 @@
+name: Emergency heal Meerkat
+
+on:
+  workflow_dispatch:
+
+jobs:
+  heal:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Restore Meerkat stack + attach Rails Agents Cloud
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          command_timeout: 25m
+          script: |
+            set -euo pipefail
+            cd /opt/meerkat-apps/meerkat
+            chmod +x deploy/deploy.sh
+            echo "==> Restart Meerkat web/website/caddy"
+            ./deploy/deploy.sh up -d --build web website
+            ./deploy/deploy.sh up -d --force-recreate caddy
+            ./deploy/deploy.sh exec -T web bin/rails db:prepare || true
+
+            echo "==> Ensure rails-agents-cloud on Caddy network"
+            if docker ps -a --format '{{.Names}}' | grep -q '^rails-agents-cloud$'; then
+              CADDY_NET="$(docker inspect deploy-caddy-1 --format '{{range $k,$v := .NetworkSettings.Networks}}{{$k}}{{end}}')"
+              echo "Caddy network: ${CADDY_NET}"
+              docker network connect "${CADDY_NET}" rails-agents-cloud 2>/dev/null || true
+              cd /opt/meerkat-apps/rails-agents-cloud
+              ./deploy/deploy.sh up -d || true
+            fi
+
+            echo "==> Health"
+            sleep 5
+            curl -fsS https://cloud.meerkatagents.com/up
+            curl -fsS https://meerkatagents.com/up
+            docker exec rails-agents-cloud wget -qO- http://127.0.0.1:3000/up || true
+            docker exec deploy-caddy-1 wget -qO- http://rails-agents-cloud:3000/up || true
+            echo OK

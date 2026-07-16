@@ -15,3 +15,10 @@ cloud.meerkatagents.com, ops.meerkatagents.com {
 	encode gzip zstd
 	reverse_proxy web:80
 }
+
+# Rails Agents Cloud — sibling app on same Hetzner VPS
+# Container from /opt/meerkat-apps/rails-agents-cloud compose project
+agents.meerkatagents.com {
+	encode gzip zstd
+	reverse_proxy rails-agents-cloud:3000
+}

@@ -1,0 +1,70 @@
+name: Deploy Rails Agents Cloud
+
+# Uses Meerkat's existing Hetzner DEPLOY_* secrets.
+# Checks out the private rails-agents-cloud repo via deploy key.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "deploy/Caddyfile"
+      - ".github/workflows/deploy-rails-agents-cloud.yml"
+
+concurrency:
+  group: deploy-rails-agents-cloud-via-meerkat
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy Rails Agents Cloud
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout Meerkat (Caddyfile)
+        uses: actions/checkout@v6
+
+      - name: Checkout rails-agents-cloud
+        uses: actions/checkout@v4
+        with:
+          repository: Tiny-Bubble-Company/rails-agents-cloud
+          path: rails-agents-cloud
+          ssh-key: ${{ secrets.RAILS_AGENTS_CLOUD_DEPLOY_KEY }}
+
+      - name: Sync Caddyfile to Hetzner
+        uses: burnett01/rsync-deployments@7.0.1
+        with:
+          switches: -avzr
+          path: deploy/Caddyfile
+          remote_path: /opt/meerkat-apps/meerkat/deploy/Caddyfile
+          remote_host: ${{ secrets.DEPLOY_HOST }}
+          remote_user: ${{ secrets.DEPLOY_USER }}
+          remote_key: ${{ secrets.DEPLOY_SSH_KEY }}
+
+      - name: Sync rails-agents-cloud to Hetzner
+        uses: burnett01/rsync-deployments@7.0.1
+        with:
+          switches: >-
+            -avzr --delete
+            --exclude=.git
+            --exclude=node_modules
+            --exclude=.next
+            --exclude=.data
+            --exclude=.env
+            --exclude=.env.production
+            --exclude=.env.local
+          path: rails-agents-cloud/
+          remote_path: /opt/meerkat-apps/rails-agents-cloud/
+          remote_host: ${{ secrets.DEPLOY_HOST }}
+          remote_user: ${{ secrets.DEPLOY_USER }}
+          remote_key: ${{ secrets.DEPLOY_SSH_KEY }}
+
+      - name: Build containers + reload Caddy
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script_stop: true
+          command_timeout: 20m
+          script: bash /opt/meerkat-apps/rails-agents-cloud/deploy/remote-deploy.sh

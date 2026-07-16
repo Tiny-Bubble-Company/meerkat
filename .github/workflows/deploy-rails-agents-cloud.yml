@@ -110,8 +110,27 @@ jobs:
               echo '<h1>Rails Agents</h1>' > /opt/meerkat-apps/rails-agents-site/index.html
             fi
 
+            # Ensure nginx try_files config is a real file (rsync of single files is flaky)
+            cat > /opt/meerkat-apps/rails-agents-site-nginx.conf <<'NGINX'
+server {
+    listen 80;
+    server_name _;
+    root /usr/share/nginx/html;
+    index index.html;
+    location / {
+        try_files $uri $uri.html $uri/ =404;
+    }
+    error_page 404 /404.html;
+    location = /up {
+        default_type text/plain;
+        return 200 'ok\n';
+    }
+}
+NGINX
+
             cd /opt/meerkat-apps/meerkat
-            ./deploy/deploy.sh up -d rails_agents_docs web website caddy
+            ./deploy/deploy.sh up -d --force-recreate rails_agents_docs
+            ./deploy/deploy.sh up -d web website caddy
 
             # Ensure cloud env points at agents host
             if [ -f /opt/meerkat-apps/rails-agents-cloud/.env.production ]; then

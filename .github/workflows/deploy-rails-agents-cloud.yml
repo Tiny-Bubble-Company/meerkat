@@ -59,12 +59,17 @@ jobs:
           remote_user: ${{ secrets.DEPLOY_USER }}
           remote_key: ${{ secrets.DEPLOY_SSH_KEY }}
 
-      - name: Build containers + reload Caddy
+      - name: Ensure Meerkat web still running + deploy cloud
         uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          script_stop: true
           command_timeout: 20m
-          script: bash /opt/meerkat-apps/rails-agents-cloud/deploy/remote-deploy.sh
+          script: |
+            set -euo pipefail
+            # First deploy used project name "deploy" and may have touched Meerkat web — heal it.
+            if [ -x /opt/meerkat-apps/meerkat/deploy/deploy.sh ]; then
+              /opt/meerkat-apps/meerkat/deploy/deploy.sh up -d web website caddy || true
+            fi
+            bash /opt/meerkat-apps/rails-agents-cloud/deploy/remote-deploy.sh

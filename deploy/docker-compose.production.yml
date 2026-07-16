@@ -46,6 +46,13 @@ services:
       MEERKAT_FAILURE_THRESHOLD: ${MEERKAT_FAILURE_THRESHOLD:-5}
       MEERKAT_WEBHOOK_TIMEOUT: ${MEERKAT_WEBHOOK_TIMEOUT:-15}
       MEERKAT_CORS_ORIGINS: ${MEERKAT_CORS_ORIGINS:-*}
+      COMPOSIO_API_KEY: ${COMPOSIO_API_KEY:-}
+      COMPOSIO_BASE_URL: ${COMPOSIO_BASE_URL:-https://backend.composio.dev/api/v3}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY:-}
+      STRIPE_PRICE_ID: ${STRIPE_PRICE_ID:-}
+      STRIPE_PAYMENT_LINK_URL: ${STRIPE_PAYMENT_LINK_URL:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
     volumes:
       - storage_data:/rails/storage
 
@@ -67,6 +74,8 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data

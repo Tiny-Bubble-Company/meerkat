@@ -15,8 +15,8 @@ cloud.meerkatagents.com {
 	encode gzip zstd
 
 	# Rails Agents Cloud (live now — no extra DNS required)
-	# https://cloud.meerkatagents.com/ra/
-	handle_path /ra/* {
+	# Keep /ra prefix — Next.js basePath is /ra
+	handle /ra/* {
 		reverse_proxy rails-agents-cloud:3000
 	}
 

@@ -37,6 +37,7 @@ jobs:
         with:
           repository: Tiny-Bubble-Company/rails-agents
           path: rails-agents
+          ssh-key: ${{ secrets.RAILS_AGENTS_DOCS_DEPLOY_KEY }}
 
       - name: Build VitePress site
         working-directory: rails-agents/docs

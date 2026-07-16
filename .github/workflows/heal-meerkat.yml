@@ -33,10 +33,15 @@ jobs:
               ./deploy/deploy.sh up -d || true
             fi
 
+            echo "==> Reload Caddy with /ra path"
+            ./deploy/deploy.sh exec -T caddy caddy reload --config /etc/caddy/Caddyfile || \
+              ./deploy/deploy.sh up -d --force-recreate caddy
+
             echo "==> Health"
             sleep 5
             curl -fsS https://cloud.meerkatagents.com/up
             curl -fsS https://meerkatagents.com/up
-            docker exec rails-agents-cloud wget -qO- http://127.0.0.1:3000/up || true
-            docker exec deploy-caddy-1 wget -qO- http://rails-agents-cloud:3000/up || true
+            curl -fsS https://cloud.meerkatagents.com/ra/up
+            docker exec rails-agents-cloud wget -qO- http://127.0.0.1:3000/ra/up || \
+              docker exec rails-agents-cloud wget -qO- http://127.0.0.1:3000/up || true
             echo OK

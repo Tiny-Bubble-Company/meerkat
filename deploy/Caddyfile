@@ -11,15 +11,27 @@ meerkatagents.com, www.meerkatagents.com {
 	}
 }
 
-cloud.meerkatagents.com, ops.meerkatagents.com {
+cloud.meerkatagents.com {
+	encode gzip zstd
+
+	# Rails Agents Cloud (live now — no extra DNS required)
+	# https://cloud.meerkatagents.com/ra/
+	handle_path /ra/* {
+		reverse_proxy rails-agents-cloud:3000
+	}
+
+	handle {
+		reverse_proxy web:80
+	}
+}
+
+ops.meerkatagents.com {
 	encode gzip zstd
 	reverse_proxy web:80
 }
 
-# Rails Agents Cloud — sibling app on same Hetzner VPS
-# Container from /opt/meerkat-apps/rails-agents-cloud compose project
+# Preferred host once DNS A record exists (GoDaddy → 167.233.121.12)
 agents.meerkatagents.com {
 	encode gzip zstd
-	# Same Docker network as Caddy (attached in remote-deploy.sh)
 	reverse_proxy rails-agents-cloud:3000
 }

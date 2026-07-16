@@ -20,6 +20,6 @@ cloud.meerkatagents.com, ops.meerkatagents.com {
 # Container from /opt/meerkat-apps/rails-agents-cloud compose project
 agents.meerkatagents.com {
 	encode gzip zstd
-	# rails-agents-cloud publishes 127.0.0.1:3010; Docker bridge gateway reaches host
-	reverse_proxy 172.17.0.1:3010
+	# Same Docker network as Caddy (attached in remote-deploy.sh)
+	reverse_proxy rails-agents-cloud:3000
 }

@@ -68,6 +68,17 @@ services:
       HOST: 0.0.0.0
       PORT: 3000
 
+  # Static VitePress site for rails.meerkatagents.com
+  rails_agents_docs:
+    image: nginx:alpine
+    container_name: rails-agents-docs
+    restart: unless-stopped
+    volumes:
+      - /opt/meerkat-apps/rails-agents-site:/usr/share/nginx/html:ro
+      - /opt/meerkat-apps/rails-agents-site-nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    expose:
+      - "80"
+
   caddy:
     image: caddy:2-alpine
     restart: unless-stopped
@@ -83,6 +94,7 @@ services:
     depends_on:
       - web
       - website
+      - rails_agents_docs
 
 volumes:
   postgres_data:

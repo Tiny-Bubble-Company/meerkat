@@ -14,12 +14,11 @@ meerkatagents.com, www.meerkatagents.com {
 cloud.meerkatagents.com {
 	encode gzip zstd
 
-	# Rails Agents Cloud (live now — no extra DNS required)
-	# Keep /ra prefix — Next.js basePath is /ra
-	@rails_agents path /ra /ra/*
-	handle @rails_agents {
-		reverse_proxy rails-agents-cloud:3000
+	# Legacy /ra path → agents dashboard host (strip /ra prefix)
+	handle_path /ra/* {
+		redir https://agents.meerkatagents.com{uri} permanent
 	}
+	redir /ra https://agents.meerkatagents.com/ permanent
 
 	handle {
 		reverse_proxy web:80
@@ -31,8 +30,14 @@ ops.meerkatagents.com {
 	reverse_proxy web:80
 }
 
-# Preferred host once DNS A record exists (GoDaddy → 167.233.121.12)
+# Rails Agents Cloud — dashboard + API
 agents.meerkatagents.com {
 	encode gzip zstd
 	reverse_proxy rails-agents-cloud:3000
+}
+
+# Rails Agents gem homepage + docs (VitePress)
+rails.meerkatagents.com {
+	encode gzip zstd
+	reverse_proxy rails-agents-docs:80
 }

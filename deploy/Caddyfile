@@ -16,7 +16,8 @@ cloud.meerkatagents.com {
 
 	# Rails Agents Cloud (live now — no extra DNS required)
 	# Keep /ra prefix — Next.js basePath is /ra
-	handle /ra/* {
+	@rails_agents path /ra /ra/*
+	handle @rails_agents {
 		reverse_proxy rails-agents-cloud:3000
 	}
 

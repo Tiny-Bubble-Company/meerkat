@@ -22,6 +22,9 @@ echo "==> Preparing databases (migrate)"
 echo "==> Seeding ops admin (if configured)"
 ./deploy/deploy.sh exec -T web bin/rails db:seed || true
 
+echo "==> Backfilling Stripe customers for Cloud signups"
+./deploy/deploy.sh exec -T web bin/rails stripe:backfill_customers || true
+
 echo "==> Pruning old images"
 docker image prune -f >/dev/null || true
 

@@ -1,7 +1,7 @@
-name: Deploy Rails Agents (cloud + docs)
+name: Sync edge (Caddy) for Rails Agents Cloud
 
-# agents.meerkatagents.com → Cloud dashboard
-# rails.meerkatagents.com → gem VitePress homepage
+# Apex site deploys from Tiny-Bubble-Company/rails-agents-cloud on push to main.
+# This workflow only syncs Meerkat edge config when Caddy/compose change.
 
 on:
   workflow_dispatch:
@@ -10,43 +10,20 @@ on:
     paths:
       - "deploy/Caddyfile"
       - "deploy/docker-compose.production.yml"
-      - "deploy/rails-agents-docs.nginx.conf"
       - ".github/workflows/deploy-rails-agents-cloud.yml"
 
 concurrency:
-  group: deploy-rails-agents-cloud-via-meerkat
+  group: deploy-rails-agents-edge-via-meerkat
   cancel-in-progress: true
 
 jobs:
   deploy:
-    name: Deploy Cloud + Docs
+    name: Sync Caddy + compose
     runs-on: ubuntu-latest
     environment: production
     steps:
       - name: Checkout Meerkat
-        uses: actions/checkout@v6
-
-      - name: Checkout rails-agents-cloud
         uses: actions/checkout@v4
-        with:
-          repository: Tiny-Bubble-Company/rails-agents-cloud
-          path: rails-agents-cloud
-          ssh-key: ${{ secrets.RAILS_AGENTS_CLOUD_DEPLOY_KEY }}
-
-      - name: Checkout rails-agents (docs)
-        uses: actions/checkout@v4
-        with:
-          repository: Tiny-Bubble-Company/rails-agents
-          path: rails-agents
-          ssh-key: ${{ secrets.RAILS_AGENTS_DOCS_DEPLOY_KEY }}
-
-      - name: Build VitePress site
-        working-directory: rails-agents/docs
-        env:
-          DOCS_BASE: /
-        run: |
-          npm ci
-          npm run build
 
       - name: Sync Caddyfile + compose to Hetzner
         uses: burnett01/rsync-deployments@7.0.1
@@ -58,68 +35,17 @@ jobs:
           remote_user: ${{ secrets.DEPLOY_USER }}
           remote_key: ${{ secrets.DEPLOY_SSH_KEY }}
 
-      - name: Sync rails-agents-cloud to Hetzner
-        uses: burnett01/rsync-deployments@7.0.1
-        with:
-          switches: >-
-            -avzr --delete
-            --exclude=.git
-            --exclude=node_modules
-            --exclude=.next
-            --exclude=.data
-            --exclude=.env
-            --exclude=.env.production
-            --exclude=.env.local
-          path: rails-agents-cloud/
-          remote_path: /opt/meerkat-apps/rails-agents-cloud/
-          remote_host: ${{ secrets.DEPLOY_HOST }}
-          remote_user: ${{ secrets.DEPLOY_USER }}
-          remote_key: ${{ secrets.DEPLOY_SSH_KEY }}
-
-      - name: Sync docs site to Hetzner
-        uses: burnett01/rsync-deployments@7.0.1
-        with:
-          switches: -avzr --delete
-          path: rails-agents/docs/.vitepress/dist/
-          remote_path: /opt/meerkat-apps/rails-agents-site/
-          remote_host: ${{ secrets.DEPLOY_HOST }}
-          remote_user: ${{ secrets.DEPLOY_USER }}
-          remote_key: ${{ secrets.DEPLOY_SSH_KEY }}
-
-      - name: Start docs nginx, cloud, reload Caddy
+      - name: Reload Caddy (remove orphan website/docs)
         uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
-          command_timeout: 25m
+          command_timeout: 10m
+          script_stop: true
           script: |
             set -euo pipefail
-            mkdir -p /opt/meerkat-apps/rails-agents-site
-            if [ ! -f /opt/meerkat-apps/rails-agents-site/index.html ]; then
-              echo '<h1>Rails Agents</h1>' > /opt/meerkat-apps/rails-agents-site/index.html
-            fi
-            cp /opt/meerkat-apps/meerkat/deploy/rails-agents-docs.nginx.conf /opt/meerkat-apps/rails-agents-site-nginx.conf
-
-            cd /opt/meerkat-apps/meerkat
-            ./deploy/deploy.sh up -d --force-recreate rails_agents_docs
-            ./deploy/deploy.sh up -d web website caddy
-
-            if [ -f /opt/meerkat-apps/rails-agents-cloud/.env.production ]; then
-              sed -i 's|cloud.meerkatagents.com/ra|agents.meerkatagents.com|g' /opt/meerkat-apps/rails-agents-cloud/.env.production || true
-              sed -i 's|RAILS_AGENTS_DASHBOARD_URL=.*|RAILS_AGENTS_DASHBOARD_URL=https://agents.meerkatagents.com|' /opt/meerkat-apps/rails-agents-cloud/.env.production || true
-              sed -i 's|NEXT_PUBLIC_DASHBOARD_URL=.*|NEXT_PUBLIC_DASHBOARD_URL=https://agents.meerkatagents.com|' /opt/meerkat-apps/rails-agents-cloud/.env.production || true
-            fi
-
-            bash /opt/meerkat-apps/rails-agents-cloud/deploy/remote-deploy.sh
-
-            sleep 3
-            ./deploy/deploy.sh exec -T caddy caddy reload --config /etc/caddy/Caddyfile || \
-              ./deploy/deploy.sh up -d --force-recreate caddy
-
-            echo "==> Public checks"
-            curl -fsS https://agents.meerkatagents.com/up
-            curl -fsS -o /dev/null -w "rails_home:%{http_code}\n" https://rails.meerkatagents.com/
-            curl -fsS -o /dev/null -w "rails_guide:%{http_code}\n" https://rails.meerkatagents.com/guide/getting-started
-            curl -fsS https://cloud.meerkatagents.com/up
-            echo DONE
+            cd /opt/meerkat-apps/meerkat/deploy
+            docker compose -f docker-compose.production.yml --env-file ../.env.production up -d --remove-orphans
+            docker compose -f docker-compose.production.yml exec -T caddy caddy reload --config /etc/caddy/Caddyfile \
+              || docker compose -f docker-compose.production.yml restart caddy

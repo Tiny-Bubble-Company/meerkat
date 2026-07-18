@@ -24,9 +24,19 @@ RAILS_MASTER_KEY=<content of config/master.key>
 MEERKAT_WEBSITE_URL=https://meerkatagents.com
 MEERKAT_CLOUD_URL=https://cloud.meerkatagents.com
 MEERKAT_GITHUB_REPO=https://github.com/Tiny-Bubble-Company/meerkat
+STRIPE_SECRET_KEY=sk_live_...
+STRIPE_PUBLISHABLE_KEY=pk_live_...
+STRIPE_PRICE_ID=price_...
+STRIPE_WEBHOOK_SECRET=whsec_...
 EOF
 chmod 600 /opt/meerkat-apps/meerkat/.env.production
 ```
+
+Stripe webhook endpoint (Dashboard → Developers → Webhooks):
+
+`https://cloud.meerkatagents.com/webhooks/stripe`
+
+Events: `checkout.session.completed`, `payment_intent.succeeded`
 
 3. Add GitHub Actions deploy key to the server:
 
@@ -76,9 +86,11 @@ ssh root@meerkatagents.com 'cd /opt/meerkat-apps/meerkat && ./deploy/deploy.sh u
 
 - **web** — Rails 8 + Thruster/Puma + Solid Queue in Puma
 - **db** — Postgres 16
-- **caddy** — HTTPS reverse proxy for marketing + cloud hosts
+- **caddy** — HTTPS reverse proxy (apex → `rails-agents-cloud:3000`; cloud/ops → `web`)
+
+The apex host (`meerkatagents.com`, `www`) is served by the **Rails Agents Cloud** Next.js app (`rails-agents-cloud` container), deployed as a separate compose project on the same Docker network. The old `website` (marketing) and `rails_agents_docs` (VitePress) services have been removed from this stack; `rails.meerkatagents.com` redirects to `meerkatagents.com/docs`.
 
 ## Health checks
 
 - https://cloud.meerkatagents.com/up
-- https://meerkatagents.com/up
+- https://meerkatagents.com/ (Rails Agents Cloud Next.js)

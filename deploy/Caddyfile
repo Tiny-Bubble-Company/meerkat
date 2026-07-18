@@ -1,25 +1,26 @@
 meerkatagents.com, www.meerkatagents.com {
 	encode gzip zstd
+	reverse_proxy rails-agents-cloud:3000
+}
 
-	@rails path /docs* /signup /login /onboarding* /api/* /up
-	handle @rails {
-		reverse_proxy web:80
-	}
+# Legacy Rails Agents docs host → new site docs
+rails.meerkatagents.com {
+	encode gzip zstd
+	redir https://meerkatagents.com/docs permanent
+}
 
-	handle {
-		reverse_proxy website:3000
-	}
+# Optional: keep agents. subdomain pointing at same Next app (or redirect to apex)
+agents.meerkatagents.com {
+	encode gzip zstd
+	redir https://meerkatagents.com{uri} permanent
 }
 
 cloud.meerkatagents.com {
 	encode gzip zstd
-
-	# Legacy /ra path → agents dashboard host (strip /ra prefix)
 	handle_path /ra/* {
-		redir https://agents.meerkatagents.com{uri} permanent
+		redir https://meerkatagents.com{uri} permanent
 	}
-	redir /ra https://agents.meerkatagents.com/ permanent
-
+	redir /ra https://meerkatagents.com/ permanent
 	handle {
 		reverse_proxy web:80
 	}
@@ -28,16 +29,4 @@ cloud.meerkatagents.com {
 ops.meerkatagents.com {
 	encode gzip zstd
 	reverse_proxy web:80
-}
-
-# Rails Agents Cloud — dashboard + API
-agents.meerkatagents.com {
-	encode gzip zstd
-	reverse_proxy rails-agents-cloud:3000
-}
-
-# Rails Agents gem homepage + docs (VitePress)
-rails.meerkatagents.com {
-	encode gzip zstd
-	reverse_proxy rails-agents-docs:80
 }

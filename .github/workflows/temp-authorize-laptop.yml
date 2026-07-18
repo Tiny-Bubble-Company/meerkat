@@ -1,0 +1,24 @@
+name: Temp authorize laptop SSH
+on:
+  workflow_dispatch:
+jobs:
+  authorize:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Add laptop key
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            set -euo pipefail
+            mkdir -p ~/.ssh
+            chmod 700 ~/.ssh
+            touch ~/.ssh/authorized_keys
+            chmod 600 ~/.ssh/authorized_keys
+            KEY='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC0h5z2sLM8Eq+XpOJAhExwksR8jN21S8T+qQvGTazcF9BWoUwjMeJijbGC58Vlks2y2FXdb0J1BISkWQWyVqpLxvUu64Iug1X8bPeiB168Tvtuq4o1Oj1llnHp5BYyJv0ex+AFVjTKu7xkjQ37cLM+bAIrBp5AHkIqbfy3yx2xmgoTC0uIfhO9ooCYRemJ/aqrrSamR1L5pX3WCr3qU19gv0G86e+gK5bkv4nThGb1iLHDgPhM6pqpBAbTi+gS+MM9pZrdDH3ClQXtRXL845nZMaf0giUpN2/IbFTWfijaQWyZheutnIjC27NgX+oTHXdorQZBpVOq1oc8BDEv95CrPwXSZci0iaWYbIy6Ft/wLSD0eOF3FOK4GzFuKqJGgVTTFLddnTrC6PzYOTGqftndEQQlrkmXG4VByzN9yZRXys4nWsLpLFmSMHVIvy3qVVwR9gYsuYLsAYWDZxfNUMnLxZNcpohgHromK59C6NrK+8MKUiOxwNy7dzpGzhPeI4U= kannan@Kannans-MacBook-Pro.local'
+            grep -qxF "$KEY" ~/.ssh/authorized_keys || echo "$KEY" >> ~/.ssh/authorized_keys
+            echo authorized
+            wc -l ~/.ssh/authorized_keys

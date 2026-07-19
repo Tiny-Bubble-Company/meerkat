@@ -1,32 +1,50 @@
-meerkatagents.com, www.meerkatagents.com {
+# Rails Agent — marketing site
+rails-agent.com, www.rails-agent.com {
 	encode gzip zstd
 	reverse_proxy rails-agents-cloud:3000
 }
 
-# Legacy Rails Agents docs host → new site docs
+# Rails Agent — cloud API + dashboard (same Next.js app)
+cloud.rails-agent.com {
+	encode gzip zstd
+	reverse_proxy rails-agents-cloud:3000
+}
+
+# Rails Agent — internal ops portal
+ops.rails-agent.com {
+	encode gzip zstd
+	reverse_proxy rails-agents-ops:3000
+}
+
+# Legacy Rails Agent hosts → new domain
+meerkatagents.com, www.meerkatagents.com {
+	encode gzip zstd
+	redir https://rails-agent.com{uri} permanent
+}
+
 rails.meerkatagents.com {
 	encode gzip zstd
-	redir https://meerkatagents.com/docs permanent
+	redir https://rails-agent.com/docs permanent
 }
 
-# Optional: keep agents. subdomain pointing at same Next app (or redirect to apex)
 agents.meerkatagents.com {
 	encode gzip zstd
-	redir https://meerkatagents.com{uri} permanent
-}
-
-cloud.meerkatagents.com {
-	encode gzip zstd
-	handle_path /ra/* {
-		redir https://meerkatagents.com{uri} permanent
-	}
-	redir /ra https://meerkatagents.com/ permanent
-	handle {
-		reverse_proxy web:80
-	}
+	redir https://rails-agent.com{uri} permanent
 }
 
 ops.meerkatagents.com {
 	encode gzip zstd
-	reverse_proxy web:80
+	redir https://ops.rails-agent.com{uri} permanent
+}
+
+# Meerkat product cloud (unchanged)
+cloud.meerkatagents.com {
+	encode gzip zstd
+	handle_path /ra/* {
+		redir https://rails-agent.com{uri} permanent
+	}
+	redir /ra https://rails-agent.com/ permanent
+	handle {
+		reverse_proxy web:80
+	}
 }
